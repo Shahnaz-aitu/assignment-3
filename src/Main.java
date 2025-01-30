@@ -13,7 +13,7 @@ import repositories.HotelRepository;
 import repositories.RoomRepository;
 import repositories.UserRepository;
 import repositories.interfaces.IHotelRepository;
-import controllers.interfaces.IRoomRepository;
+import repositories.interfaces.IRoomRepository;
 import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IUserRepository;
 
