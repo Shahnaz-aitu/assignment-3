@@ -4,7 +4,7 @@ import controllers.BookingController;
 import controllers.UserController;
 import controllers.interfaces.IHotelController;
 import controllers.interfaces.IRoomController;
-import controllers.interfaces.IBookingController;
+import controllers.interfaces.IBookingController;  //comm
 import controllers.interfaces.IUserController;
 import data.PostgresDB;
 import data.interfaces.IDB;
@@ -13,7 +13,7 @@ import repositories.HotelRepository;
 import repositories.RoomRepository;
 import repositories.UserRepository;
 import repositories.interfaces.IHotelRepository;
-import controllers.interfaces.IRoomRepository;
+import repositories.interfaces.IRoomRepository;
 import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IUserRepository;
 

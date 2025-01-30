@@ -1,8 +1,8 @@
 package repositories;
 
-import data.interfaces.IDB;
 import models.Room;
-import controllers.interfaces.IRoomRepository;
+import repositories.interfaces.IRoomRepository;
+import data.interfaces.IDB;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,56 +19,29 @@ public class RoomRepository implements IRoomRepository {
     }
 
     @Override
-    public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
-        String sql = """
-            SELECT COUNT(*) 
-            FROM Bookings 
-            WHERE room_id = ? 
-              AND ((check_in_date BETWEEN ? AND ?) 
-                OR (check_out_date BETWEEN ? AND ?)
-                OR (? BETWEEN check_in_date AND check_out_date))
-        """;
-
-        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, roomId);
-            stmt.setDate(2, new java.sql.Date(checkIn.getTime()));
-            stmt.setDate(3, new java.sql.Date(checkOut.getTime()));
-            stmt.setDate(4, new java.sql.Date(checkIn.getTime()));
-            stmt.setDate(5, new java.sql.Date(checkOut.getTime()));
-            stmt.setDate(6, new java.sql.Date(checkIn.getTime()));
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) == 0;
-            }
-        } catch (Exception e) {
-            System.err.println("Ошибка при проверке доступности номера: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public List<Room> getRoomsByHotelId(int hotelId) {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT * FROM Rooms WHERE hotel_id = ?";
-
-        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM rooms WHERE hotel_id = ?")) {
             stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                rooms.add(new Room(
-                        rs.getInt("room_id"),
-                        rs.getInt("hotel_id"),
+                Room room = new Room(
+                        rs.getInt("id"),
                         rs.getString("type"),
-                        rs.getDouble("price")
-                ));
+                        rs.getDouble("price"),
+                        rs.getInt("hotel_id")
+                );
+                rooms.add(room);
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении номеров отеля: " + e.getMessage());
             e.printStackTrace();
         }
         return rooms;
+    }
+
+    @Override
+    public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
+        return false;
     }
 }

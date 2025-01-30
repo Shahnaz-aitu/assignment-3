@@ -15,5 +15,8 @@ public class Room {
         this.isAvailable = isAvailable;
     }
 
+    public Room(int id, String type, double price, int hotelId) {
+    }
+
     // Геттеры и сеттеры
 }
