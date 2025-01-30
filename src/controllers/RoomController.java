@@ -11,6 +11,9 @@ public class RoomController {
         this.roomRepository = roomRepository;
     }
 
+    public <IRoomRepository> RoomController(IRoomRepository roomRepo) {
+    }
+
     @Override
     public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
         return roomRepository.isRoomAvailable(roomId, checkIn, checkOut);
