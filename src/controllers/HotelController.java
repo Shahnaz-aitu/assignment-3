@@ -1,11 +1,11 @@
 package controllers;
 
-import controllers.interfaces.IHotelController;
-import repositories.interfaces.IHotelRepository;
 import models.Hotel;
+import repositories.interfaces.IHotelRepository;
+
 import java.util.List;
 
-public class HotelController implements IHotelController {
+public class HotelController {
     private final IHotelRepository hotelRepository;
 
     public HotelController(IHotelRepository hotelRepository) {

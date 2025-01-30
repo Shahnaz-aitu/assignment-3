@@ -1,6 +1,5 @@
 package controllers;
 
-import controllers.interfaces.IBookingController;
 import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IUserRepository;
 import repositories.interfaces.IRoomRepository;
@@ -9,7 +8,7 @@ import models.User;
 
 import java.util.Date;
 
-public class BookingController implements IBookingController {
+public class BookingController {
     private final IBookingRepository bookingRepository;
     private final IUserRepository userRepository;
     private final IRoomRepository roomRepository;

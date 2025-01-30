@@ -1,7 +1,4 @@
 import java.util.Scanner;
-import controllers.interfaces.IHotelController;
-import controllers.interfaces.IRoomController;
-import controllers.interfaces.IBookingController;
 
 public class HotelBookingApplication {
     private final Scanner scanner = new Scanner(System.in);

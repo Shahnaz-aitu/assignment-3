@@ -1,14 +1,11 @@
 import controllers.HotelController;
 import controllers.RoomController;
 import controllers.BookingController;
-import controllers.interfaces.IHotelController;
-import controllers.interfaces.IRoomController;
-import controllers.interfaces.IBookingController;
 import data.PostgresDB;
 import data.interfaceces.IDB;
+import repositories.BookingRepository;
 import repositories.HotelRepository;
 import repositories.RoomRepository;
-import repositories.BookingRepository;
 import repositories.interfaces.IHotelRepository;
 import repositories.interfaces.IRoomRepository;
 import repositories.interfaces.IBookingRepository;
