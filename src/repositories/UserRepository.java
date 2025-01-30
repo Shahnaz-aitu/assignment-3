@@ -59,6 +59,19 @@ public class UserRepository implements IUserRepository {
         }
         return null;
     }
+    @Override
+    public boolean deleteUser(String email) {
+        String sql = "DELETE FROM Users WHERE email = ?";
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0; // Если удалили хотя бы одну строку, возвращаем true
+        } catch (Exception e) {
+            System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
+            return false;
+        }
+    }
+
 
     @Override
     public User searchUser(String query) {

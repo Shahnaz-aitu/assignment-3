@@ -15,6 +15,11 @@ public class UserController implements IUserController {
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
+    @Override
+    public boolean deleteUser(String email) {
+        return userRepository.deleteUser(email);
+    }
+
 
     @Override
     public User createUser(String name, String email, int age, String password) {

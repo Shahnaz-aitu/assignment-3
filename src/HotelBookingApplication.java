@@ -32,7 +32,8 @@ public class HotelBookingApplication {
             System.out.println("3. Управление бронированиями");
             System.out.println("4. Забронировать");
             System.out.println("5. Поиск пользователя");
-            System.out.println("6. Выход");
+            System.out.println("6. Удаление пользователя");
+            System.out.println("7. Выход");
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -43,8 +44,9 @@ public class HotelBookingApplication {
                 case 2 -> manageUsers();
                 case 3 -> manageBookings();
                 case 4 -> manageRooms();
-                case 5 -> searchUser(); // Вызов нового метода для поиска пользователя
-                case 6 -> {
+                case 5 -> searchUser();
+                case 6 -> deleteUser(); // Добавили этот пункт
+                case 7 -> {
                     System.out.println("Выход...");
                     return;
                 }
@@ -52,6 +54,7 @@ public class HotelBookingApplication {
             }
         }
     }
+
 
     private void manageUsers() {
         System.out.print("Введите ваше имя: ");
@@ -99,6 +102,18 @@ public class HotelBookingApplication {
     private void manageRooms() {
         System.out.println("Управление номерами...");
     }
+    private void deleteUser() {
+        System.out.print("Введите email пользователя для удаления: ");
+        String email = scanner.nextLine();
+
+        boolean success = userController.deleteUser(email);
+        if (success) {
+            System.out.println("Пользователь успешно удален.");
+        } else {
+            System.out.println("Ошибка: пользователь не найден или не удалось удалить.");
+        }
+    }
+
 
     private void manageBookings() {
         System.out.println("Управление бронированиями...");
