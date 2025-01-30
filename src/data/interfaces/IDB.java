@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface IDB {
-    //interface with method Connection
     Connection getConnection() throws SQLException;
+    // Метод close() уже существует в AutoCloseable
     void close();
 }

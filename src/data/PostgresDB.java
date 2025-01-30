@@ -1,6 +1,5 @@
-package data;
-
 import data.interfaces.IDB;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,8 +14,14 @@ public class PostgresDB implements IDB {
         this.url = "jdbc:postgresql://" + host + ":" + port + "/" + database;
         this.user = user;
         this.password = password;
+        try {
+            // Регистрируем драйвер PostgreSQL
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            System.err.println("Не удалось загрузить драйвер PostgreSQL.");
+        }
     }
-
 
     @Override
     public Connection getConnection() throws SQLException {

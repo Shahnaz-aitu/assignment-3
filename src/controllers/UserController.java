@@ -7,20 +7,21 @@ import repositories.interfaces.IUserRepository;
 public class UserController implements IUserController {
     private final IUserRepository userRepository;
 
-    // Конструктор
     public UserController(IUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // Метод для получения пользователя по email
     @Override
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
 
-    // Метод для создания нового пользователя
     @Override
-    public User createUser(String name, String email) {
-        return userRepository.createUser(name, email);
+    public User createUser(String name, String email, int age, String password) {
+        if (age < 18) {
+            System.out.println("Ошибка: возраст должен быть больше 18 лет.");
+            return null;
+        }
+        return userRepository.createUser(name, email, age, password);
     }
 }

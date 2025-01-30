@@ -1,8 +1,8 @@
 package repositories;
 
-import data.interfaces.IDB; // ✅ Исправленный импорт
-import repositories.interfaces.IUserRepository;
+import data.interfaces.IDB;
 import models.User;
+import repositories.interfaces.IUserRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,33 +25,37 @@ public class UserRepository implements IUserRepository {
                 return new User(
                         rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("email")
+                        rs.getString("email"),
+                        rs.getInt("age"),
+                        rs.getString("password")
                 );
             }
         } catch (Exception e) {
             System.err.println("Ошибка при получении пользователя по email: " + e.getMessage());
-            e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public User createUser(String name, String email) {
-        String sql = "INSERT INTO Users (name, email) VALUES (?, ?) RETURNING id";
+    public User createUser(String name, String email, int age, String password) {
+        if (age < 18) {
+            System.err.println("Ошибка: возраст должен быть больше 18 лет.");
+            return null;
+        }
+
+        String sql = "INSERT INTO Users (name, email, age, password) VALUES (?, ?, ?, ?) RETURNING id";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, name);
             stmt.setString(2, email);
+            stmt.setInt(3, age);
+            stmt.setString(4, password);
+
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        name,
-                        email
-                );
+                return new User(rs.getInt("id"), name, email, age, password);
             }
         } catch (Exception e) {
             System.err.println("Ошибка при создании пользователя: " + e.getMessage());
-            e.printStackTrace();
         }
         return null;
     }
