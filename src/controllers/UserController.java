@@ -24,4 +24,9 @@ public class UserController implements IUserController {
         }
         return userRepository.createUser(name, email, age, password);
     }
+
+    @Override
+    public User searchUser(String query) {
+        return userRepository.searchUser(query); // Вызов метода из репозитория
+    }
 }

@@ -31,7 +31,8 @@ public class HotelBookingApplication {
             System.out.println("2. Регистрация");
             System.out.println("3. Управление бронированиями");
             System.out.println("4. Забронировать");
-            System.out.println("5. Выход");
+            System.out.println("5. Поиск пользователя");
+            System.out.println("6. Выход");
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -39,10 +40,11 @@ public class HotelBookingApplication {
 
             switch (choice) {
                 case 1 -> manageHotels();
-                case 4 -> manageRooms();
-                case 3 -> manageBookings();
                 case 2 -> manageUsers();
-                case 5 -> {
+                case 3 -> manageBookings();
+                case 4 -> manageRooms();
+                case 5 -> searchUser(); // Вызов нового метода для поиска пользователя
+                case 6 -> {
                     System.out.println("Выход...");
                     return;
                 }
@@ -58,7 +60,7 @@ public class HotelBookingApplication {
         String email = scanner.nextLine();
         System.out.print("Введите ваш возраст: ");
         int age = scanner.nextInt();
-        scanner.nextLine(); // Очистка буфера222211
+        scanner.nextLine(); // Очистка буфера
 
         if (age < 18) {
             System.out.println("Ошибка: возраст должен быть больше 18 лет.");
@@ -68,12 +70,25 @@ public class HotelBookingApplication {
         System.out.print("Введите ваш пароль: ");
         String password = scanner.nextLine();
 
-        // Создаем пользователя в базе данных
         User newUser = userController.createUser(userName, email, age, password);
         if (newUser != null) {
             System.out.println(userName + ", вы успешно зарегистрировались!");
         } else {
             System.out.println("Ошибка при регистрации. Попробуйте снова.");
+        }
+    }
+
+    private void searchUser() {
+        System.out.print("Введите имя или email для поиска: ");
+        String query = scanner.nextLine();
+        User foundUser = userController.searchUser(query);
+        if (foundUser != null) {
+            System.out.println("Найден пользователь:");
+            System.out.println("Имя: " + foundUser.getName());
+            System.out.println("Email: " + foundUser.getEmail());
+            System.out.println("Возраст: " + foundUser.getAge());
+        } else {
+            System.out.println("Пользователь не найден.");
         }
     }
 

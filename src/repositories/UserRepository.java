@@ -59,4 +59,27 @@ public class UserRepository implements IUserRepository {
         }
         return null;
     }
+
+    @Override
+    public User searchUser(String query) {
+        String sql = "SELECT * FROM Users WHERE name ILIKE ? OR email ILIKE ?";
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, "%" + query + "%");
+            stmt.setString(2, "%" + query + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getInt("age"),
+                        rs.getString("password")
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при поиске пользователя: " + e.getMessage());
+        }
+        return null;
+    }
 }
