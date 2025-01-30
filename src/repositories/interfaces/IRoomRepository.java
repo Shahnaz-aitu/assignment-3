@@ -1,8 +1,7 @@
-package repositories.interfaces;
+package repositories.interfaces; // ✅ Должен быть этот пакет
 
-import models.Room;
-import java.util.List;
+import java.util.Date;
 
 public interface IRoomRepository {
-    List<Room> getRoomsByHotelId(int hotelId);
+    boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut);
 }

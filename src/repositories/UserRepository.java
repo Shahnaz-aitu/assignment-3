@@ -1,6 +1,6 @@
 package repositories;
 
-import data.interfaceces.IDB;
+import data.interfaces.IDB; // ✅ Исправленный импорт
 import repositories.interfaces.IUserRepository;
 import models.User;
 
@@ -22,9 +22,14 @@ public class UserRepository implements IUserRepository {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt("id"), rs.getString("name"), rs.getString("email"));
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email")
+                );
             }
         } catch (Exception e) {
+            System.err.println("Ошибка при получении пользователя по email: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -38,9 +43,14 @@ public class UserRepository implements IUserRepository {
             stmt.setString(2, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt("id"), name, email);
+                return new User(
+                        rs.getInt("id"),
+                        name,
+                        email
+                );
             }
         } catch (Exception e) {
+            System.err.println("Ошибка при создании пользователя: " + e.getMessage());
             e.printStackTrace();
         }
         return null;

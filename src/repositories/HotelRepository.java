@@ -2,12 +2,13 @@ package repositories;
 
 import data.interfaces.IDB;
 import models.Hotel;
+import repositories.interfaces.IHotelRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelRepository implements IHotelRepository {
+public class HotelRepository implements IHotelRepository { // ✅ Удалил abstract
     private final IDB db;
 
     public HotelRepository(IDB db) {
@@ -54,6 +55,29 @@ public class HotelRepository implements IHotelRepository {
         List<Hotel> hotels = new ArrayList<>();
         try (Connection con = db.getConnection(); Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                hotels.add(new Hotel(
+                        rs.getInt("hotel_id"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getDouble("rating")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return hotels;
+    }
+
+    @Override
+    public List<Hotel> getHotelsByCity(String city) { // ✅ Исправление
+        List<Hotel> hotels = new ArrayList<>();
+        String sql = "SELECT * FROM Hotels WHERE address LIKE ?";
+
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, "%" + city + "%");
+            ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 hotels.add(new Hotel(
                         rs.getInt("hotel_id"),

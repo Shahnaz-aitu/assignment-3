@@ -1,4 +1,8 @@
 package controllers.interfaces;
 
+import models.User;
+
 public interface IUserController {
+    User getUserByEmail(String email);
+    User createUser(String name, String email);
 }

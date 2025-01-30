@@ -11,11 +11,12 @@ public class PostgresDB implements IDB {
     private final String password;
     private Connection connection;
 
-    public PostgresDB(String url, String user, String password, String database) {
-        this.url = url + "/" + database;
+    public PostgresDB(String host, int port, String database, String user, String password) {
+        this.url = "jdbc:postgresql://" + host + ":" + port + "/" + database;
         this.user = user;
         this.password = password;
     }
+
 
     @Override
     public Connection getConnection() throws SQLException {

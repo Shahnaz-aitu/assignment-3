@@ -1,10 +1,15 @@
-import data.interfaceces.IDB;
-import repositories.interfaces.IRoomRepository;
+package repositories;
+
+import data.interfaces.IDB;
+import models.Room;
+import controllers.interfaces.IRoomRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class RoomRepository implements IRoomRepository {
     private final IDB db;
@@ -22,7 +27,7 @@ public class RoomRepository implements IRoomRepository {
               AND ((check_in_date BETWEEN ? AND ?) 
                 OR (check_out_date BETWEEN ? AND ?)
                 OR (? BETWEEN check_in_date AND check_out_date))
-            """;
+        """;
 
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, roomId);
@@ -37,8 +42,33 @@ public class RoomRepository implements IRoomRepository {
                 return rs.getInt(1) == 0;
             }
         } catch (Exception e) {
+            System.err.println("Ошибка при проверке доступности номера: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public List<Room> getRoomsByHotelId(int hotelId) {
+        List<Room> rooms = new ArrayList<>();
+        String sql = "SELECT * FROM Rooms WHERE hotel_id = ?";
+
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, hotelId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                rooms.add(new Room(
+                        rs.getInt("room_id"),
+                        rs.getInt("hotel_id"),
+                        rs.getString("type"),
+                        rs.getDouble("price")
+                ));
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при получении номеров отеля: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return rooms;
     }
 }
