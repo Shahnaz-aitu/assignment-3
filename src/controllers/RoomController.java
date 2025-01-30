@@ -1,10 +1,11 @@
 package controllers;
 
+import controllers.interfaces.IRoomController;
+import models.Room;
 import repositories.interfaces.IRoomRepository;
+import java.util.List;
 
-import java.util.Date;
-
-public class RoomController {
+public class RoomController implements IRoomController {
     private final IRoomRepository roomRepository;
 
     public RoomController(IRoomRepository roomRepository) {
@@ -12,7 +13,7 @@ public class RoomController {
     }
 
     @Override
-    public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
-        return roomRepository.isRoomAvailable(roomId, checkIn, checkOut);
+    public List<Room> getRoomsByHotelId(int hotelId) {
+        return roomRepository.getRoomsByHotelId(hotelId);
     }
 }

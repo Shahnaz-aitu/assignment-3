@@ -1,8 +1,8 @@
-package controllers.interfaces;
+package repositories.interfaces;
 
 import models.Room;
 import java.util.List;
 
-public interface IRoomController {
+public interface IRoomRepository {
     List<Room> getRoomsByHotelId(int hotelId);
 }

@@ -2,7 +2,6 @@ package repositories;
 
 import data.interfaces.IDB;
 import models.Hotel;
-import repositories.interfaces.IHotelRepository;
 
 import java.sql.*;
 import java.util.ArrayList;

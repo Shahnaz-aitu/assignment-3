@@ -1,14 +1,15 @@
 package controllers;
 
+import controllers.interfaces.IBookingController;
+import models.Booking;
+import models.User;
 import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IUserRepository;
 import repositories.interfaces.IRoomRepository;
-import models.Booking;
-import models.User;
 
 import java.util.Date;
 
-public class BookingController {
+public class BookingController implements IBookingController {
     private final IBookingRepository bookingRepository;
     private final IUserRepository userRepository;
     private final IRoomRepository roomRepository;
@@ -20,15 +21,15 @@ public class BookingController {
     }
 
     @Override
-    public boolean createBooking(String userName, String userEmail, int roomId, Date checkIn, Date checkOut) {
+    public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
         if (!roomRepository.isRoomAvailable(roomId, checkIn, checkOut)) {
-            System.out.println("Номер недоступен для бронирования.");
+            System.out.println("Ошибка: Номер уже забронирован на эти даты.");
             return false;
         }
 
         User user = userRepository.getUserByEmail(userEmail);
         if (user == null) {
-            user = userRepository.createUser(userName, userEmail);
+            user = userRepository.createUser("Guest", userEmail);
         }
 
         Booking booking = new Booking(user.getId(), roomId, checkIn, checkOut);

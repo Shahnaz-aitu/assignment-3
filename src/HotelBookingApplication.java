@@ -1,3 +1,6 @@
+import controllers.interfaces.IHotelController;
+import controllers.interfaces.IRoomController;
+import controllers.interfaces.IBookingController;
 import java.util.Scanner;
 
 public class HotelBookingApplication {

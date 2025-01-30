@@ -9,4 +9,7 @@ public interface IHotelRepository {
     List<Hotel> getAllHotels();
     boolean updateHotel(Hotel hotel);
     boolean deleteHotel(int id);
+
+    // Новый метод для поиска отелей по городу
+    List<Hotel> getHotelsByCity(String city);
 }
