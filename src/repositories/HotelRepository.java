@@ -13,7 +13,7 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     public HotelRepository(IDB db) {
         this.db = db;
-    }
+    }//ff
 
     @Override
     public boolean createHotel(Hotel hotel) {
