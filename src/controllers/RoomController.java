@@ -1,11 +1,10 @@
 package controllers;
 
-import controllers.interfaces.IRoomController;
 import repositories.interfaces.IRoomRepository;
 
 import java.util.Date;
 
-public class RoomController implements IRoomController {
+public class RoomController {
     private final IRoomRepository roomRepository;
 
     public RoomController(IRoomRepository roomRepository) {

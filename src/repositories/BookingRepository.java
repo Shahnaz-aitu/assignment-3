@@ -1,11 +1,12 @@
 package repositories;
 
-import data.interfaceces.IDB;
-import repositories.interfaces.IBookingRepository;
+import data.interfaces.IDB;
 import models.Booking;
+import repositories.interfaces.IBookingRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class BookingRepository implements IBookingRepository {
     private final IDB db;
@@ -23,10 +24,9 @@ public class BookingRepository implements IBookingRepository {
             stmt.setDate(3, new java.sql.Date(booking.getCheckIn().getTime()));
             stmt.setDate(4, new java.sql.Date(booking.getCheckOut().getTime()));
             return stmt.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 }
-
