@@ -29,4 +29,10 @@ public class BookingRepository implements IBookingRepository {
         }
         return false;
     }
+
+    @Override
+    public Booking getBookingById(int id) {
+        // Реализация получения бронирования по ID
+        return null; // Placeholder return, actual implementation needed
+    }
 }

@@ -5,6 +5,7 @@ import controllers.interfaces.IUserController;
 import models.User;
 
 import java.util.Scanner;
+import java.util.List;
 
 public class HotelBookingApplication {
     private final Scanner scanner = new Scanner(System.in);
@@ -117,5 +118,75 @@ public class HotelBookingApplication {
 
     private void manageBookings() {
         System.out.println("Управление бронированиями...");
+        List<Order> orders = getOrders();
+        orders.forEach(order -> System.out.println(order.getOrderId()));
+    }
+}
+
+public class DatabaseConnection {
+    private static DatabaseConnection instance;
+
+    private DatabaseConnection() {
+        // Приватный конструктор
+    }
+
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+}
+
+public class UserFactory {
+    public static User createUser(String role) {
+        switch (role.toLowerCase()) {
+            case "manager":
+                return new Manager();
+            case "admin":
+                return new Admin();
+            default:
+                return new Guest();
+        }
+    }
+}
+
+public class RoleManager {
+    public boolean hasAccess(User user, String endpoint) {
+        // Пример логики проверки доступа
+        return user.getRole().hasPermission(endpoint);
+    }
+}
+
+public class DataValidator {
+    public static boolean isValidOrder(Order order) {
+        // Логика проверки данных
+        return order != null && order.getOrderDetails() != null;
+    }
+}
+
+public class Product {
+    private String name;
+    private Category category;
+
+    // Конструктор и геттеры/сеттеры
+}
+
+public enum Category {
+    ELECTRONICS, FURNITURE, CLOTHING
+}
+
+public class Order {
+    private int orderId;
+    private OrderDetails orderDetails;
+    private Customer customer;
+
+    // Конструктор и геттеры/сеттеры
+
+    public static Order getFullOrderDescription(int orderId) {
+        // Пример получения данных из базы данных
+        OrderDetails details = Database.getOrderDetails(orderId);
+        Customer customer = Database.getCustomerByOrderId(orderId);
+        return new Order(orderId, details, customer);
     }
 }

@@ -1,11 +1,18 @@
 package models;
 
+public enum UserRole {
+    GUEST,
+    MANAGER,
+    ADMIN
+}
+
 public class User {
     private int id;
     private String name;
     private String email;
     private int age;
     private String password;
+    private UserRole role;
 
     // Конструктор с id (используется при получении из БД)
     public User(int id, String name, String email, int age, String password) {
@@ -67,6 +74,18 @@ public class User {
         this.password = password;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public boolean hasPermission(String action) {
+        return role.hasPermission(action);
+    }
+
     @Override
     public String toString() {
         return "Пользователь {" +
@@ -75,5 +94,23 @@ public class User {
                 ", Email='" + email + '\'' +
                 ", Возраст=" + age +
                 '}';
+    }
+}
+
+public class UserBuilder {
+    private String name;
+    private String email;
+    private int age;
+    private String password;
+    
+    public UserBuilder setName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    // Другие сеттеры
+    
+    public User build() {
+        return new User(name, email, age, password);
     }
 }

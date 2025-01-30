@@ -62,3 +62,10 @@ public class Main {
         }
     }
 }
+
+public class RoleManager {
+    public boolean hasAccess(User user, String endpoint) {
+        // Логика проверки доступа
+        return user.getRole().hasPermission(endpoint);
+    }
+}

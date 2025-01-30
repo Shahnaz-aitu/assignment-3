@@ -9,4 +9,6 @@ public interface IRoomRepository {
     List<Room> getRoomsByHotelId(int hotelId); // Добавляем метод
 
     boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut);
+
+    Room getRoomById(int id);
 }

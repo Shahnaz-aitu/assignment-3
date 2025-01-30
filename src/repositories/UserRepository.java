@@ -95,4 +95,9 @@ public class UserRepository implements IUserRepository {
         }
         return null;
     }
+
+    public User getUserById(int id) {
+        // Реализация получения пользователя по ID
+        return null; // Placeholder return, actual implementation needed
+    }
 }
