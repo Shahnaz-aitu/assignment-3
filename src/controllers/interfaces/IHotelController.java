@@ -1,4 +1,4 @@
 package controllers.interfaces;
 
-public class IHotelController {
+public interface IHotelController {
 }

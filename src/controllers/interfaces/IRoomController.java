@@ -1,4 +1,4 @@
 package controllers.interfaces;
 
-public class IRoomController {
+public interface IRoomController {
 }

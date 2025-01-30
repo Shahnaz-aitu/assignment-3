@@ -1,4 +1,4 @@
 package repositories.interfaces;
 
-public class IRomRepositoriy {
+public interface IRomRepository {
 }
