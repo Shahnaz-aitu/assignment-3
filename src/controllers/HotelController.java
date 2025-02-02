@@ -13,9 +13,6 @@ public class HotelController implements IHotelController {
         this.hotelRepository = hotelRepository;
     }
 
-    public HotelController(IHotelRepository hotelRepo) {
-    }
-
     @Override
     public List<Hotel> getHotelsByCity(String city) {
         return hotelRepository.getHotelsByCity(city);

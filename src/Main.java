@@ -1,24 +1,36 @@
+import controllers.BookingController;
 import controllers.HotelController;
 import controllers.RoomController;
-import controllers.BookingController;
+import controllers.UserController;
+import controllers.interfaces.IBookingController;
 import controllers.interfaces.IHotelController;
 import controllers.interfaces.IRoomController;
-import controllers.interfaces.IBookingController;
+import controllers.interfaces.IUserController;
 import data.PostgresDB;
-import data.interfaces.IDB; // Исправлена опечатка в имени пакета (interfaceces → interfaces)
+import data.interfaces.IDB;
 import repositories.BookingRepository;
 import repositories.HotelRepository;
 import repositories.RoomRepository;
 import repositories.UserRepository;
+import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IHotelRepository;
 import repositories.interfaces.IRoomRepository;
-import repositories.interfaces.IBookingRepository;
 import repositories.interfaces.IUserRepository;
 
 public class Main {
+    public void mainMenu() {}
     public static void main(String[] args) {
-        // Используем try-with-resources, если PostgresDB реализует AutoCloseable
-        try (IDB db = new PostgresDB("jdbc:postgresql://localhost:5432", "postgres", "0000", "hotel_booking")) {
+        System.out.println("Запуск Hotel Booking System...");
+
+        try {
+            // Создаем подключение к базе данных
+            IDB db = new PostgresDB("localhost", 5432, "HotelProject", "postgres", "12060745");
+
+            if (db.getConnection() == null) {
+                    System.err.println("Ошибка: Не удалось установить соединение с базой данных.");
+                    return;
+                }
+
             // Инициализация репозиториев
             IHotelRepository hotelRepo = new HotelRepository(db);
             IRoomRepository roomRepo = new RoomRepository(db);
@@ -28,21 +40,24 @@ public class Main {
             // Создание контроллеров с зависимостями
             IHotelController hotelController = new HotelController(hotelRepo);
             IRoomController roomController = new RoomController(roomRepo);
-            IBookingController bookingController = new BookingController(
-                    bookingRepo,
-                    userRepo,
-                    roomRepo // BookingController требует IRoomRepository
-            );
+            IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo);
+            IUserController userController = new UserController(userRepo);
 
             // Запуск приложения
             HotelBookingApplication app = new HotelBookingApplication(
                     hotelController,
                     roomController,
-                    bookingController
+                    bookingController,
+                    userController
             );
-            app.mainMenu(); // Исправлено: start() → mainMenu()
 
-        } catch (Exception e) {
+            app.mainMenu();
+
+            // Закрываем соединение после завершения работы приложения
+            db.close();
+            System.out.println("Приложение завершено.");
+        }catch (Exception e) {
+            System.err.println("Ошибка во время работы приложения: " + e.getMessage());
             e.printStackTrace();
         }
     }

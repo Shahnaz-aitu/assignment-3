@@ -1,10 +1,15 @@
-import data.interfaceces.IDB;
+package repositories;
+
+import models.Room;
 import repositories.interfaces.IRoomRepository;
+import data.interfaces.IDB;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class RoomRepository implements IRoomRepository {
     private final IDB db;
@@ -14,31 +19,29 @@ public class RoomRepository implements IRoomRepository {
     }
 
     @Override
-    public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
-        String sql = """
-            SELECT COUNT(*) 
-            FROM Bookings 
-            WHERE room_id = ? 
-              AND ((check_in_date BETWEEN ? AND ?) 
-                OR (check_out_date BETWEEN ? AND ?)
-                OR (? BETWEEN check_in_date AND check_out_date))
-            """;
-
-        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, roomId);
-            stmt.setDate(2, new java.sql.Date(checkIn.getTime()));
-            stmt.setDate(3, new java.sql.Date(checkOut.getTime()));
-            stmt.setDate(4, new java.sql.Date(checkIn.getTime()));
-            stmt.setDate(5, new java.sql.Date(checkOut.getTime()));
-            stmt.setDate(6, new java.sql.Date(checkIn.getTime()));
-
+    public List<Room> getRoomsByHotelId(int hotelId) {
+        List<Room> rooms = new ArrayList<>();
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM rooms WHERE hotel_id = ?")) {
+            stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) == 0;
+            while (rs.next()) {
+                Room room = new Room(
+                        rs.getInt("id"),
+                        rs.getString("type"),
+                        rs.getDouble("price"),
+                        rs.getInt("hotel_id")
+                );
+                rooms.add(room);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return rooms;
+    }
+
+    @Override
+    public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
         return false;
     }
 }
