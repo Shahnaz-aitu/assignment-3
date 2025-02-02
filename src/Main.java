@@ -8,6 +8,7 @@ import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
 import data.PostgresDB;
 import data.interfaces.IDB;
+import models.User;
 import repositories.BookingRepository;
 import repositories.HotelRepository;
 import repositories.RoomRepository;
@@ -18,7 +19,6 @@ import repositories.interfaces.IRoomRepository;
 import repositories.interfaces.IUserRepository;
 
 public class Main {
-    public void mainMenu() {}
     public static void main(String[] args) {
         System.out.println("Запуск Hotel Booking System...");
 
@@ -27,9 +27,9 @@ public class Main {
             IDB db = new PostgresDB("localhost", 5432, "HotelProject", "postgres", "12060745");
 
             if (db.getConnection() == null) {
-                    System.err.println("Ошибка: Не удалось установить соединение с базой данных.");
-                    return;
-                }
+                System.err.println("Ошибка: Не удалось установить соединение с базой данных.");
+                return;
+            }
 
             // Инициализация репозиториев
             IHotelRepository hotelRepo = new HotelRepository(db);
@@ -40,7 +40,8 @@ public class Main {
             // Создание контроллеров с зависимостями
             IHotelController hotelController = new HotelController(hotelRepo);
             IRoomController roomController = new RoomController(roomRepo);
-            IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo);
+            // Передаем все 4 аргумента в BookingController
+            IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo, hotelRepo);
             IUserController userController = new UserController(userRepo);
 
             // Запуск приложения
@@ -56,16 +57,9 @@ public class Main {
             // Закрываем соединение после завершения работы приложения
             db.close();
             System.out.println("Приложение завершено.");
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("Ошибка во время работы приложения: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-}
-
-public class RoleManager {
-    public boolean hasAccess(User user, String endpoint) {
-        // Логика проверки доступа
-        return user.getRole().hasPermission(endpoint);
     }
 }

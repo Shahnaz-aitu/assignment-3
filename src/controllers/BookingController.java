@@ -25,16 +25,14 @@ public class BookingController implements IBookingController {
 
     @Override
     public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
-        // Проверка роли пользователя
         User user = userRepository.getUserByEmail(userEmail);
         if (user == null || !user.hasPermission("CREATE_BOOKING")) {
             System.out.println("Ошибка: недостаточно прав для создания бронирования.");
             return false;
         }
 
-        // Проверка доступности номера
         Room room = roomRepository.getRoomById(roomId);
-        if (room == null || !RoomValidator.isValid(room)) {
+        if (room == null || !Room.RoomValidator.isValid(room)) { // исправлено обращение к валидатору
             System.out.println("Ошибка: некорректные данные номера.");
             return false;
         }
@@ -44,7 +42,6 @@ public class BookingController implements IBookingController {
             return false;
         }
 
-        // Создание бронирования
         Booking booking = new Booking(user.getId(), roomId, checkIn, checkOut);
         return bookingRepository.createBooking(booking);
     }
@@ -60,10 +57,5 @@ public class BookingController implements IBookingController {
         Hotel hotel = hotelRepository.getHotelById(room.getHotelId());
 
         return new BookingDetails(booking, user, room, hotel);
-    }
-
-    // Метод для проверки прав доступа
-    private boolean checkAccess(User user, String action) {
-        return user != null && user.hasPermission(action);
     }
 }

@@ -21,4 +21,4 @@ public enum UserRole {
     public Set<String> getPermissions() {
         return new HashSet<>(permissions);
     }
-} 
+}

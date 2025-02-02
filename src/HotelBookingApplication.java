@@ -46,7 +46,7 @@ public class HotelBookingApplication {
                 case 3 -> manageBookings();
                 case 4 -> manageRooms();
                 case 5 -> searchUser();
-                case 6 -> deleteUser(); // Добавили этот пункт
+                case 6 -> deleteUser();
                 case 7 -> {
                     System.out.println("Выход...");
                     return;
@@ -56,7 +56,6 @@ public class HotelBookingApplication {
         }
     }
 
-
     private void manageUsers() {
         System.out.print("Введите ваше имя: ");
         String userName = scanner.nextLine();
@@ -65,11 +64,6 @@ public class HotelBookingApplication {
         System.out.print("Введите ваш возраст: ");
         int age = scanner.nextInt();
         scanner.nextLine(); // Очистка буфера
-
-        if (age < 18) {
-            System.out.println("Ошибка: возраст должен быть больше 18 лет.");
-            return;
-        }
 
         System.out.print("Введите ваш пароль: ");
         String password = scanner.nextLine();
@@ -103,11 +97,15 @@ public class HotelBookingApplication {
     private void manageRooms() {
         System.out.println("Управление номерами...");
     }
+
+    // Здесь для примера используется заглушка текущего пользователя (admin)
     private void deleteUser() {
         System.out.print("Введите email пользователя для удаления: ");
         String email = scanner.nextLine();
 
-        boolean success = userController.deleteUser(email);
+        // Заглушка: получаем пользователя с правами админа
+        User currentUser = userController.getUserByEmail("admin@domain.com");
+        boolean success = userController.deleteUser(email, currentUser);
         if (success) {
             System.out.println("Пользователь успешно удален.");
         } else {
@@ -115,78 +113,14 @@ public class HotelBookingApplication {
         }
     }
 
-
     private void manageBookings() {
         System.out.println("Управление бронированиями...");
-        List<Order> orders = getOrders();
+        List<Order> orders = getOrders(); // Предполагается, что метод getOrders() существует
         orders.forEach(order -> System.out.println(order.getOrderId()));
     }
-}
 
-public class DatabaseConnection {
-    private static DatabaseConnection instance;
-
-    private DatabaseConnection() {
-        // Приватный конструктор
-    }
-
-    public static synchronized DatabaseConnection getInstance() {
-        if (instance == null) {
-            instance = new DatabaseConnection();
-        }
-        return instance;
-    }
-}
-
-public class UserFactory {
-    public static User createUser(String role) {
-        switch (role.toLowerCase()) {
-            case "manager":
-                return new Manager();
-            case "admin":
-                return new Admin();
-            default:
-                return new Guest();
-        }
-    }
-}
-
-public class RoleManager {
-    public boolean hasAccess(User user, String endpoint) {
-        // Пример логики проверки доступа
-        return user.getRole().hasPermission(endpoint);
-    }
-}
-
-public class DataValidator {
-    public static boolean isValidOrder(Order order) {
-        // Логика проверки данных
-        return order != null && order.getOrderDetails() != null;
-    }
-}
-
-public class Product {
-    private String name;
-    private Category category;
-
-    // Конструктор и геттеры/сеттеры
-}
-
-public enum Category {
-    ELECTRONICS, FURNITURE, CLOTHING
-}
-
-public class Order {
-    private int orderId;
-    private OrderDetails orderDetails;
-    private Customer customer;
-
-    // Конструктор и геттеры/сеттеры
-
-    public static Order getFullOrderDescription(int orderId) {
-        // Пример получения данных из базы данных
-        OrderDetails details = Database.getOrderDetails(orderId);
-        Customer customer = Database.getCustomerByOrderId(orderId);
-        return new Order(orderId, details, customer);
+    // Заглушка для получения списка заказов (Order)
+    private List<Order> getOrders() {
+        return List.of();
     }
 }

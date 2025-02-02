@@ -22,19 +22,19 @@ public class BookingDetails {
     @Override
     public String toString() {
         return String.format(
-            "Бронирование №%d\n" +
-            "Гость: %s (%s)\n" +
-            "Отель: %s\n" +
-            "Номер: %s (Категория: %s)\n" +
-            "Даты: %s - %s",
-            booking.getId(),
-            user.getName(),
-            user.getEmail(),
-            hotel.getName(),
-            room.getType(),
-            room.getCategory(),
-            booking.getCheckIn(),
-            booking.getCheckOut()
+                "Бронирование №%d\n" +
+                        "Гость: %s (%s)\n" +
+                        "Отель: %s\n" +
+                        "Номер: %s (Категория: %s)\n" +
+                        "Даты: %s - %s",
+                booking.getId(),  // Метод getId() должен быть добавлен в класс Booking
+                user.getName(),
+                user.getEmail(),
+                hotel.getName(),
+                room.getType(),
+                room.getCategory(),
+                booking.getCheckIn(),
+                booking.getCheckOut()
         );
     }
-} 
+}

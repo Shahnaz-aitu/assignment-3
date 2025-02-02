@@ -2,8 +2,10 @@ package controllers;
 
 import controllers.interfaces.IRoomController;
 import models.Room;
+import models.User;
 import repositories.interfaces.IRoomRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoomController implements IRoomController {
@@ -14,7 +16,11 @@ public class RoomController implements IRoomController {
     }
 
     @Override
-    public List<Room> getRoomsByHotelId(int hotelId) {
+    public List<Room> getRoomsByHotelId(int hotelId, User currentUser) {
+        if (!currentUser.hasPermission("VIEW_ROOMS")) {
+            System.out.println("Ошибка: недостаточно прав для просмотра номеров");
+            return new ArrayList<>();
+        }
         return roomRepository.getRoomsByHotelId(hotelId);
     }
 }

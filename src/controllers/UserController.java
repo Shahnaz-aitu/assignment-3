@@ -3,6 +3,7 @@ package controllers;
 import controllers.interfaces.IUserController;
 import models.User;
 import repositories.interfaces.IUserRepository;
+import data.DataValidator;
 
 public class UserController implements IUserController {
     private final IUserRepository userRepository;
@@ -15,16 +16,12 @@ public class UserController implements IUserController {
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
-    @Override
-    public boolean deleteUser(String email) {
-        return userRepository.deleteUser(email);
-    }
-
 
     @Override
     public User createUser(String name, String email, int age, String password) {
-        if (age < 18) {
-            System.out.println("Ошибка: возраст должен быть больше 18 лет.");
+        User newUser = new User(name, email, age, password);
+        if (!DataValidator.isValidUser(newUser)) {
+            System.out.println("Ошибка: возраст должен быть 18 лет или старше.");
             return null;
         }
         return userRepository.createUser(name, email, age, password);
@@ -32,6 +29,15 @@ public class UserController implements IUserController {
 
     @Override
     public User searchUser(String query) {
-        return userRepository.searchUser(query); // Вызов метода из репозитория
+        return userRepository.searchUser(query);
+    }
+
+    @Override
+    public boolean deleteUser(String email, User currentUser) {
+        if (!currentUser.hasPermission("MANAGE_USERS")) {
+            System.out.println("Ошибка: недостаточно прав");
+            return false;
+        }
+        return userRepository.deleteUser(email);
     }
 }
