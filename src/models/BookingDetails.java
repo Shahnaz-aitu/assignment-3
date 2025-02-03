@@ -13,11 +13,18 @@ public class BookingDetails {
         this.hotel = hotel;
     }
 
-    // Геттеры для всех полей
-    public Booking getBooking() { return booking; }
-    public User getUser() { return user; }
-    public Room getRoom() { return room; }
-    public Hotel getHotel() { return hotel; }
+    public Booking getBooking() {
+        return booking;
+    }
+    public User getUser() {
+        return user;
+    }
+    public Room getRoom() {
+        return room;
+    }
+    public Hotel getHotel() {
+        return hotel;
+    }
 
     @Override
     public String toString() {
@@ -27,7 +34,7 @@ public class BookingDetails {
                         "Отель: %s\n" +
                         "Номер: %s (Категория: %s)\n" +
                         "Даты: %s - %s",
-                booking.getId(),  // Метод getId() должен быть добавлен в класс Booking
+                booking.getId(),
                 user.getName(),
                 user.getEmail(),
                 hotel.getName(),

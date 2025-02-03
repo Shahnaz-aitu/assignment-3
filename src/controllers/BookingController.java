@@ -3,7 +3,9 @@ package controllers;
 import controllers.interfaces.IBookingController;
 import models.*;
 import repositories.interfaces.*;
-
+import services.AuthorizationService;
+import services.AuthorizationException;
+import models.Permission;
 import java.util.Date;
 
 public class BookingController implements IBookingController {
@@ -26,13 +28,16 @@ public class BookingController implements IBookingController {
     @Override
     public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
         User user = userRepository.getUserByEmail(userEmail);
-        if (user == null || !user.hasPermission(Role.valueOf("CREATE_BOOKING"))) {
-            System.out.println("Ошибка: недостаточно прав для создания бронирования.");
+        try {
+            // Проверяем, что пользователь обладает разрешением на создание бронирования
+            AuthorizationService.checkPermission(user, Permission.CREATE_BOOKING);
+        } catch (AuthorizationException e) {
+            System.out.println("Ошибка: " + e.getMessage());
             return false;
         }
 
         Room room = roomRepository.getRoomById(roomId);
-        if (room == null || !Room.RoomValidator.isValid(room)) { // исправлено обращение к валидатору
+        if (room == null || !Room.RoomValidator.isValid(room)) {
             System.out.println("Ошибка: некорректные данные номера.");
             return false;
         }
@@ -51,11 +56,9 @@ public class BookingController implements IBookingController {
         if (booking == null) {
             return null;
         }
-
         User user = userRepository.getUserById(booking.getUserId());
         Room room = roomRepository.getRoomById(booking.getRoomId());
         Hotel hotel = hotelRepository.getHotelById(room.getHotelId());
-
         return new BookingDetails(booking, user, room, hotel);
     }
 }

@@ -4,7 +4,6 @@ import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
 import models.Order;
 import models.User;
-
 import java.util.Scanner;
 import java.util.List;
 
@@ -64,8 +63,7 @@ public class HotelBookingApplication {
         String email = scanner.nextLine();
         System.out.print("Введите ваш возраст: ");
         int age = scanner.nextInt();
-        scanner.nextLine(); // Очистка буфера
-
+        scanner.nextLine();
         System.out.print("Введите ваш пароль: ");
         String password = scanner.nextLine();
 
@@ -99,12 +97,10 @@ public class HotelBookingApplication {
         System.out.println("Управление номерами...");
     }
 
-    // Здесь для примера используется заглушка текущего пользователя (admin)
     private void deleteUser() {
         System.out.print("Введите email пользователя для удаления: ");
         String email = scanner.nextLine();
-
-        // Заглушка: получаем пользователя с правами админа
+        // Заглушка: получаем текущего пользователя с правами админа
         User currentUser = userController.getUserByEmail("admin@domain.com");
         boolean success = userController.deleteUser(email, currentUser);
         if (success) {
@@ -120,7 +116,6 @@ public class HotelBookingApplication {
         orders.forEach(order -> System.out.println(order.getOrderId()));
     }
 
-    // Заглушка для получения списка заказов (Order)
     private List<Order> getOrders() {
         return List.of();
     }

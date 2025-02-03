@@ -2,9 +2,11 @@ package controllers;
 
 import controllers.interfaces.IUserController;
 import models.User;
-import models.Role;
 import repositories.interfaces.IUserRepository;
 import data.DataValidator;
+import services.AuthorizationService;
+import services.AuthorizationException;
+import models.Permission;
 
 public class UserController implements IUserController {
     private final IUserRepository userRepository;
@@ -35,13 +37,13 @@ public class UserController implements IUserController {
 
     @Override
     public boolean deleteUser(String email, User currentUser) {
-        // ✅ Теперь проверяем роль правильно
-        if (currentUser.getRole() != Role.ADMIN) {
-            System.out.println("❌ Ошибка: только администратор может удалять пользователей.");
+        try {
+            // Проверяем, что пользователь обладает разрешением на управление пользователями
+            AuthorizationService.checkPermission(currentUser, Permission.MANAGE_USERS);
+        } catch (AuthorizationException e) {
+            System.out.println("❌ Ошибка: " + e.getMessage());
             return false;
         }
-
-        // ✅ Если роль ADMIN, удаляем пользователя
         boolean success = userRepository.deleteUser(email);
         if (success) {
             System.out.println("✅ Пользователь успешно удален.");
