@@ -6,7 +6,7 @@ public class Hotel {
     private String address;
     private double rating;
 
-    // Конструкторы
+    //builder pattern Конструкторы
     public Hotel() {}
 
     public Hotel(int id, String name, String address, double rating) {
@@ -15,35 +15,34 @@ public class Hotel {
         this.address = address;
         this.rating = rating;
     }
+    public static class Builder {
+        private int id;
+        private String name;
+        private String address;
+        private double rating;
 
-    // Геттеры и сеттеры
-   public int getId() {
-        return id;
-   }
-   public void setId(int id) {
-        this.id = id;
-   }
-    public String getName() {
-        return name;
-    }
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
 
-    public String getAddress() {
-        return address;
-    }
+        public Builder setAddress(String address) {
+            this.address = address;
+            return this;
+        }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+        public Builder setRating(double rating) {
+            this.rating = rating;
+            return this;
+        }
 
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
+        public Hotel build() {
+            return new Hotel();
+        }
     }
 }

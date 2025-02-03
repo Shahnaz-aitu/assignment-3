@@ -10,7 +10,15 @@ import java.util.List;
 
 public class HotelRepository implements IHotelRepository { // ✅ Удалил abstract
     private final IDB db;
+    private final Database db;
 
+    // Dependency Injection через конструктор
+    public HotelRepository(Database db) {
+        this.db = db;
+    }
+    Database db = Database.getInstance(); // Создаём Singleton
+
+    HotelRepository repository = new HotelRepository(db);
     public HotelRepository(IDB db) {
         this.db = db;
     }
@@ -70,7 +78,7 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
     }
 
     @Override
-    public List<Hotel> getHotelsByCity(String city) { // ✅ Исправление
+    public List<Hotel> getHotelsByCity(String city) {
         List<Hotel> hotels = new ArrayList<>();
         String sql = "SELECT * FROM Hotels WHERE address LIKE ?";
 
@@ -79,7 +87,8 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                hotels.add(new Hotel(
+                // Используйте фабрику для создания объектов
+                hotels.add(HotelFactory.createHotel(
                         rs.getInt("hotel_id"),
                         rs.getString("name"),
                         rs.getString("address"),
