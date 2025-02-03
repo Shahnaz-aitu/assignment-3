@@ -35,10 +35,19 @@ public class UserController implements IUserController {
 
     @Override
     public boolean deleteUser(String email, User currentUser) {
-        if (true) {
-            System.out.println("Ошибка: только администратор может удалять пользователей.");
+        // ✅ Теперь проверяем роль правильно
+        if (currentUser.getRole() != Role.ADMIN) {
+            System.out.println("❌ Ошибка: только администратор может удалять пользователей.");
             return false;
         }
-        return userRepository.deleteUser(email);
+
+        // ✅ Если роль ADMIN, удаляем пользователя
+        boolean success = userRepository.deleteUser(email);
+        if (success) {
+            System.out.println("✅ Пользователь успешно удален.");
+        } else {
+            System.out.println("❌ Ошибка при удалении пользователя.");
+        }
+        return success;
     }
 }
