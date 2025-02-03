@@ -42,6 +42,35 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
+        Connection conn = null;
+        try {
+            conn = db.getConnection();
+            String sql = "SELECT COUNT(*) FROM bookings " +
+                    "WHERE room_id = ? " +
+                    "AND ((? BETWEEN start_date AND end_date) " +
+                    "OR (? BETWEEN start_date AND end_date) " +
+                    "OR (start_date BETWEEN ? AND ?))";
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, roomId);
+            st.setDate(2, new java.sql.Date(checkIn.getTime()));
+            st.setDate(3, new java.sql.Date(checkOut.getTime()));
+            st.setDate(4, new java.sql.Date(checkIn.getTime()));
+            st.setDate(5, new java.sql.Date(checkOut.getTime()));
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count == 0; // Если пересечений с другими бронированиями нет, комната доступна
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return false;
     }
 }
