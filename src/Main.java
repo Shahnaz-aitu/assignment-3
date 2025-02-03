@@ -39,8 +39,8 @@ public class Main {
             }
 
             // Проверяем существование таблиц
-            if (!checkTableExists(db, "orders")) {
-                System.err.println("❌ Ошибка: Таблица 'orders' не найдена. Проверьте, правильно ли названа таблица.");
+            if (!checkTableExists(db, "orders") || !checkTableExists(db, "users")) {
+                System.err.println("❌ Ошибка: Одна из таблиц (orders/users) не найдена. Проверьте, правильно ли названы таблицы.");
                 return;
             }
 
@@ -58,6 +58,9 @@ public class Main {
 
             // Проверяем, есть ли администратор, если нет - создаем
             ensureAdminExists(userRepo);
+
+            // Проверяем, есть ли тестовый пользователь, если нет - создаем
+            ensureTestUserExists(userRepo);
 
             // Тест 1: Проверка JOIN-запроса (получение деталей заказа)
             System.out.println("\n=== ✅ Проверка JOIN-запроса (получение деталей заказа) ===");
@@ -131,7 +134,7 @@ public class Main {
              PreparedStatement stmt = con.prepareStatement(
                      "SELECT COUNT(*) FROM users WHERE email = 'admin@mail.com'")) {
             ResultSet rs = stmt.executeQuery();
-            if (rs.next() && rs.getInt(1) == 0) {//v
+            if (rs.next() && rs.getInt(1) == 0) {
                 System.out.println("ℹ️ Администратор не найден. Создаем нового администратора...");
 
                 try (PreparedStatement insertStmt = con.prepareStatement(
@@ -149,6 +152,33 @@ public class Main {
             }
         } catch (Exception e) {
             System.err.println("❌ Ошибка при создании администратора: " + e.getMessage());
+        }
+    }
+
+    // Метод для проверки и создания тестового пользователя
+    private static void ensureTestUserExists(IUserRepository userRepo) {
+        try (Connection con = userRepo.getDb().getConnection();
+             PreparedStatement stmt = con.prepareStatement(
+                     "SELECT COUNT(*) FROM users WHERE email = 'testuser@mail.com'")) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                System.out.println("ℹ️ Test User не найден. Создаем тестового пользователя...");
+
+                try (PreparedStatement insertStmt = con.prepareStatement(
+                        "INSERT INTO users (name, email, age, password, role) VALUES (?, ?, ?, ?, ?)")) {
+                    insertStmt.setString(1, "Test User");
+                    insertStmt.setString(2, "testuser@mail.com");
+                    insertStmt.setInt(3, 25);
+                    insertStmt.setString(4, "testPass");
+                    insertStmt.setString(5, "USER");
+                    insertStmt.executeUpdate();
+                    System.out.println("✅ Test User успешно создан!");
+                }
+            } else {
+                System.out.println("✅ Test User уже существует.");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Ошибка при создании Test User: " + e.getMessage());
         }
     }
 }
