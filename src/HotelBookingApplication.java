@@ -2,6 +2,7 @@ import controllers.interfaces.IBookingController;
 import controllers.interfaces.IHotelController;
 import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
+import models.Order;
 import models.User;
 
 import java.util.Scanner;

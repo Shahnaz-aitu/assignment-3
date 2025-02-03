@@ -6,15 +6,16 @@ public class User {
     private String email;
     private int age;
     private String password;
-    private UserRole role;  // UserRole теперь определяется в отдельном файле
+    private Role role;
 
-    // Конструктор с id (используется при получении из БД)
-    public User(int id, String name, String email, int age, String password) {
+    // Конструктор с id и строковой ролью (используется при получении из БД)
+    public User(int id, String name, String email, int age, String password, String role) {
         this.id = id;
         this.name = name;
         this.email = email;
         setAge(age);
         this.password = password;
+        setRole(role); // Конвертация строки в Role
     }
 
     // Конструктор без id (используется при регистрации нового пользователя)
@@ -23,6 +24,7 @@ public class User {
         this.email = email;
         setAge(age);
         this.password = password;
+        this.role = Role.USER;
     }
 
     public int getId() { return id; }
@@ -45,12 +47,27 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
+    public Role getRole() { return role; }
+
+    // Новый метод setRole, который принимает строку из БД
+    public void setRole(String role) {
+        try {
+            if (role != null) {
+                this.role = Role.valueOf(role.toUpperCase());
+            } else {
+                this.role = Role.USER; // Если роль null, назначаем USER
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.println("❌ Ошибка: Некорректная роль '" + role + "', назначаем USER.");
+            this.role = Role.USER; // Если роль неизвестна, назначаем USER
+        }
+    }
+
+    public void setRole(Role role) { this.role = role; }
 
     // Метод проверки прав через роль
-    public boolean hasPermission(String action) {
-        return role != null && role.hasPermission(action);
+    public boolean hasPermission(Role requiredRole) {
+        return this.role == requiredRole || this.role == Role.ADMIN; // Админ может все
     }
 
     @Override
@@ -60,6 +77,7 @@ public class User {
                 ", Имя='" + name + '\'' +
                 ", Email='" + email + '\'' +
                 ", Возраст=" + age +
+                ", Роль=" + role +
                 '}';
     }
 }

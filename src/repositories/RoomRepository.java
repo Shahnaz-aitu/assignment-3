@@ -1,6 +1,7 @@
 package repositories;
 
 import models.Room;
+import models.RoomCategory;
 import repositories.interfaces.IRoomRepository;
 import data.interfaces.IDB;
 

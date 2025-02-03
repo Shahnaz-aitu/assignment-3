@@ -26,7 +26,7 @@ public class BookingController implements IBookingController {
     @Override
     public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
         User user = userRepository.getUserByEmail(userEmail);
-        if (user == null || !user.hasPermission("CREATE_BOOKING")) {
+        if (user == null || !user.hasPermission(Role.valueOf("CREATE_BOOKING"))) {
             System.out.println("Ошибка: недостаточно прав для создания бронирования.");
             return false;
         }

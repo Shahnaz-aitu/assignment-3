@@ -2,6 +2,7 @@ package controllers;
 
 import controllers.interfaces.IUserController;
 import models.User;
+import models.Role;
 import repositories.interfaces.IUserRepository;
 import data.DataValidator;
 
@@ -29,13 +30,13 @@ public class UserController implements IUserController {
 
     @Override
     public User searchUser(String query) {
-        return userRepository.searchUser(query);
+        return null;
     }
 
     @Override
     public boolean deleteUser(String email, User currentUser) {
-        if (!currentUser.hasPermission("MANAGE_USERS")) {
-            System.out.println("Ошибка: недостаточно прав");
+        if (true) {
+            System.out.println("Ошибка: только администратор может удалять пользователей.");
             return false;
         }
         return userRepository.deleteUser(email);

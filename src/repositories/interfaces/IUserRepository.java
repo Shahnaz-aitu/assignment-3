@@ -1,5 +1,6 @@
 package repositories.interfaces;
 
+import data.interfaces.IDB;
 import models.User;
 
 public interface IUserRepository {
@@ -8,5 +9,7 @@ public interface IUserRepository {
     User searchUser(String query);
     boolean deleteUser(String email);
     User getUserById(int id);
+
+    IDB getDb();
 }
 

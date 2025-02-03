@@ -17,24 +17,28 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User getUserByEmail(String email) {
-        String sql = "SELECT * FROM Users WHERE email = ?";
+        String sql = "SELECT * FROM users WHERE email = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(
+                User user = new User(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getInt("age"),
-                        rs.getString("password")
+                        rs.getString("password"),
+                        rs.getString("role") // Добавляем роль!
                 );
+                System.out.println("Загруженный пользователь: " + user.getName() + ", роль: " + user.getRole()); // Отладка
+                return user;
             }
         } catch (Exception e) {
             System.err.println("Ошибка при получении пользователя по email: " + e.getMessage());
         }
         return null;
     }
+
 
     @Override
     public User createUser(String name, String email, int age, String password) {
@@ -52,26 +56,26 @@ public class UserRepository implements IUserRepository {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt("id"), name, email, age, password);
+                return new User(rs.getInt("id"), name, email, age, password, rs.getString("role"));
             }
         } catch (Exception e) {
             System.err.println("Ошибка при создании пользователя: " + e.getMessage());
         }
         return null;
     }
+
     @Override
     public boolean deleteUser(String email) {
         String sql = "DELETE FROM Users WHERE email = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, email);
             int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0; // Если удалили хотя бы одну строку, возвращаем true
+            return affectedRows > 0;
         } catch (Exception e) {
             System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
             return false;
         }
     }
-
 
     @Override
     public User searchUser(String query) {
@@ -87,8 +91,8 @@ public class UserRepository implements IUserRepository {
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getInt("age"),
-                        rs.getString("password")
-                );
+                        rs.getString("password"),
+                        rs.getString("role"));
             }
         } catch (Exception e) {
             System.err.println("Ошибка при поиске пользователя: " + e.getMessage());
@@ -96,8 +100,13 @@ public class UserRepository implements IUserRepository {
         return null;
     }
 
+    @Override
     public User getUserById(int id) {
-        // Реализация получения пользователя по ID
-        return null; // Placeholder return, actual implementation needed
+        return null;
+    }
+
+    @Override
+    public IDB getDb() {
+        return db;
     }
 }
