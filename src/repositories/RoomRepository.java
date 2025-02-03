@@ -51,22 +51,25 @@ public class RoomRepository implements IRoomRepository {
         return null; // Placeholder return, actual implementation needed
     }
 
-    public List<Room> getAvailableRooms() {
-        return getAllRooms().stream()
-            .filter(Room::isAvailable)
-            .collect(Collectors.toList());
-    }
-
-    public List<Room> getRoomsByCategory(RoomCategory category) {
-        return getAllRooms().stream()
-            .filter(room -> room.getCategory() == category)
-            .collect(Collectors.toList());
-    }
-
-    public List<Room> getRoomsByPriceRange(double minPrice, double maxPrice) {
-        return getAllRooms().stream()
-            .filter(room -> room.getPrice() >= minPrice && room.getPrice() <= maxPrice)
-            .sorted((r1, r2) -> Double.compare(r1.getPrice(), r2.getPrice()))
-            .collect(Collectors.toList());
+    public List<Room> getAllRooms() {
+        List<Room> rooms = new ArrayList<>();
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM rooms")) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Room room = new Room(
+                        rs.getInt("id"),
+                        rs.getInt("hotel_id"),
+                        rs.getString("type"),
+                        rs.getDouble("price"),
+                        rs.getBoolean("is_available"),
+                        RoomCategory.valueOf(rs.getString("category"))
+                );
+                rooms.add(room);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rooms;
     }
 }
