@@ -2,7 +2,7 @@ package controllers;
 
 import controllers.interfaces.IHotelController;
 import models.Hotel;
-import models.Role;
+import models.Permission;
 import models.User;
 import repositories.interfaces.IHotelRepository;
 
@@ -18,7 +18,7 @@ public class HotelController implements IHotelController {
 
     @Override
     public List<Hotel> getHotelsByCity(String city, User currentUser) {
-        if (!currentUser.hasPermission(Role.valueOf("VIEW_HOTELS"))) {
+        if (!currentUser.hasPermission(Permission.VIEW_HOTELS)) {  // Исправлено
             System.out.println("Ошибка: недостаточно прав для просмотра отелей");
             return new ArrayList<>();
         }

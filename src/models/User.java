@@ -13,13 +13,13 @@ public class User {
     private Set<Permission> permissions = new HashSet<>();
 
     // Конструктор с id (например, при получении из БД)
-    public User(int id, String name, String email, int age, String password, Role role) {
+    public User(int id, String name, String email, int age, String password, String role) {
         this.id = id;
         this.name = name;
         this.email = email;
         setAge(age);  // Используем сеттер для проверки
         this.password = password;
-        this.role = role;
+        this.role = Role.valueOf(role);
     }
 
     // Конструктор без id (при регистрации нового пользователя)
