@@ -1,8 +1,12 @@
 package repositories.interfaces;
 
-import models.Booking;
+import models.BookingDetails;
+import java.util.List;
 
 public interface IBookingRepository {
-    boolean createBooking(Booking booking);
-    Booking getBookingById(int id);
+    boolean createBooking(models.Booking booking);
+    models.Booking getBookingById(int id);
+
+    // Новый метод для получения бронирований пользователя
+    List<BookingDetails> getUserBookings(int userId);
 }

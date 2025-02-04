@@ -6,7 +6,9 @@ import repositories.interfaces.*;
 import services.AuthorizationService;
 import services.AuthorizationException;
 import models.Permission;
+
 import java.util.Date;
+import java.util.List;
 
 public class BookingController implements IBookingController {
     private final IBookingRepository bookingRepository;
@@ -29,7 +31,6 @@ public class BookingController implements IBookingController {
     public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
         User user = userRepository.getUserByEmail(userEmail);
         try {
-            // Проверяем, что пользователь обладает разрешением на создание бронирования
             AuthorizationService.checkPermission(user, Permission.CREATE_BOOKING);
         } catch (AuthorizationException e) {
             System.out.println("Ошибка: " + e.getMessage());
@@ -48,17 +49,35 @@ public class BookingController implements IBookingController {
         }
 
         Booking booking = new Booking(user.getId(), roomId, checkIn, checkOut);
-        return bookingRepository.createBooking(booking);
+        boolean success = bookingRepository.createBooking(booking);
+
+        if (success) {
+            System.out.println("✅ Бронирование успешно создано!");
+        } else {
+            System.out.println("❌ Ошибка при создании бронирования.");
+        }
+
+        return success;
     }
 
-    public BookingDetails getFullBookingDescription(int bookingId) {
-        Booking booking = bookingRepository.getBookingById(bookingId);
-        if (booking == null) {
-            return null;
+    public void showUserBookings(String userEmail) {
+        User user = userRepository.getUserByEmail(userEmail);
+        if (user == null) {
+            System.out.println("Ошибка: пользователь не найден.");
+            return;
         }
-        User user = userRepository.getUserById(booking.getUserId());
-        Room room = roomRepository.getRoomById(booking.getRoomId());
-        Hotel hotel = hotelRepository.getHotelById(room.getHotelId());
-        return new BookingDetails(booking, user, room, hotel);
+
+        List<BookingDetails> bookings = bookingRepository.getUserBookings(user.getId());
+        if (bookings.isEmpty()) {
+            System.out.println("Нет активных бронирований.");
+            return;
+        }
+
+        System.out.println("Ваши бронирования:");
+        for (BookingDetails booking : bookings) {
+            System.out.println("- Номер " + booking.getRoom().getType() + " в " +
+                    booking.getHotel().getName() + " с " +
+                    booking.getBooking().getCheckIn() + " по " + booking.getBooking().getCheckOut());
+        }
     }
 }

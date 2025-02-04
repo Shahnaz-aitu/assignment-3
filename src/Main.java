@@ -8,6 +8,7 @@ import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
 import data.PostgresDB;
 import data.interfaces.IDB;
+import main.HotelBookingApplication;
 import models.Order;
 import models.OrderDetails;
 import models.Role;

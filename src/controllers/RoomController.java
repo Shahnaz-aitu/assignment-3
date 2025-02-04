@@ -18,10 +18,22 @@ public class RoomController implements IRoomController {
 
     @Override
     public List<Room> getRoomsByHotelId(int hotelId, User currentUser) {
-        if (!currentUser.hasPermission(Permission.VIEW_ROOMS)) {  // Исправлено
+        if (!currentUser.hasPermission(Permission.VIEW_ROOMS)) {
             System.out.println("Ошибка: недостаточно прав для просмотра номеров");
             return new ArrayList<>();
         }
-        return roomRepository.getRoomsByHotelId(hotelId);
+
+        List<Room> rooms = roomRepository.getRoomsByHotelId(hotelId);
+        if (rooms.isEmpty()) {
+            System.out.println("Нет доступных номеров.");
+        } else {
+            System.out.println("Доступные номера:");
+            for (Room room : rooms) {
+                System.out.println("- Номер " + room.getType() + " (Категория: " + room.getCategory() +
+                        ", Цена: " + room.getPrice() + ")");
+            }
+        }
+
+        return rooms;
     }
 }

@@ -16,6 +16,9 @@ public class Hotel {
         this.rating = rating;
     }
 
+    public Hotel(int i, String hotelName, String s, int i1, String s1) {
+    }
+
     // Геттеры и сеттеры
    public int getId() {
         return id;
