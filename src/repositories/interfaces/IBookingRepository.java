@@ -9,4 +9,6 @@ public interface IBookingRepository {
 
     // Новый метод для получения бронирований пользователя
     List<BookingDetails> getUserBookings(int userId);
+
+    BookingDetails getFullBookingDescription(int bookingId);
 }

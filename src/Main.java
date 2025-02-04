@@ -1,26 +1,11 @@
-import controllers.BookingController;
-import controllers.HotelController;
-import controllers.RoomController;
-import controllers.UserController;
-import controllers.interfaces.IBookingController;
-import controllers.interfaces.IHotelController;
-import controllers.interfaces.IRoomController;
-import controllers.interfaces.IUserController;
+import controllers.*;
+import controllers.interfaces.*;
 import data.PostgresDB;
 import data.interfaces.IDB;
 import main.HotelBookingApplication;
-import models.Order;
-import models.OrderDetails;
-import models.Role;
-import models.User;
-import repositories.BookingRepository;
-import repositories.HotelRepository;
-import repositories.RoomRepository;
-import repositories.UserRepository;
-import repositories.interfaces.IBookingRepository;
-import repositories.interfaces.IHotelRepository;
-import repositories.interfaces.IRoomRepository;
-import repositories.interfaces.IUserRepository;
+import models.*;
+import repositories.*;
+import repositories.interfaces.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +13,7 @@ import java.sql.ResultSet;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Запуск Hotel Booking System...");
+        System.out.println("🚀 Запуск Hotel Booking System...");
 
         try {
             // Подключение к базе данных
@@ -63,9 +48,9 @@ public class Main {
             // Проверяем, есть ли тестовый пользователь, если нет - создаем
             ensureTestUserExists(userRepo);
 
-            // Тест 1: Проверка JOIN-запроса (получение деталей заказа)
+            // 📌 Тест 1: Проверка JOIN-запроса (получение деталей заказа)
             System.out.println("\n=== ✅ Проверка JOIN-запроса (получение деталей заказа) ===");
-            Order order = Order.getFullOrderDescription(1, db); // ID заказа = 1
+            Order order = Order.getFullOrderDescription(1, db);
             if (order != null) {
                 System.out.println("Заказ №" + order.getOrderId());
                 System.out.println("Клиент: " + order.getUserName() + " (" + order.getUserEmail() + ")");
@@ -77,16 +62,14 @@ public class Main {
                 System.out.println("⚠️ Ошибка при получении заказа.");
             }
 
-            // Тест 2: Проверка удаления пользователя (только ADMIN)
+            // 📌 Тест 2: Проверка удаления пользователя (только ADMIN)
             System.out.println("\n=== ✅ Проверка удаления пользователя (роль ADMIN) ===");
-
-            // Загружаем администратора из базы, а не создаем вручную
             User adminUser = userRepo.getUserByEmail("admin@mail.com");
 
             if (adminUser == null) {
                 System.err.println("❌ Ошибка: Не удалось загрузить администратора из базы.");
             } else {
-                System.out.println("Роль текущего пользователя: " + adminUser.getRole()); // Отладка
+                System.out.println("Роль текущего пользователя: " + adminUser.getRole());
                 if (adminUser.getRole() == Role.ADMIN) {
                     boolean deleted = userController.deleteUser("testuser@mail.com", adminUser);
                     System.out.println("Удаление пользователя: " + (deleted ? "✅ Успешно" : "❌ Ошибка (возможно, у вас нет прав)"));
@@ -95,7 +78,12 @@ public class Main {
                 }
             }
 
-            // Запуск меню
+            // 📌 Тест 3: Проверка полного описания бронирования
+            System.out.println("\n=== ✅ Проверка полной информации о бронировании ===");
+            int bookingId = 1; // Укажи нужный ID бронирования
+            bookingController.showFullBookingDescription(bookingId);
+
+            // Запуск основного меню приложения
             HotelBookingApplication app = new HotelBookingApplication(
                     hotelController,
                     roomController,
@@ -118,15 +106,13 @@ public class Main {
         try (Connection con = db.getConnection();
              PreparedStatement stmt = con.prepareStatement(
                      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?);")) {
-            stmt.setString(1, tableName.toLowerCase()); // PostgreSQL чувствителен к регистру
+            stmt.setString(1, tableName.toLowerCase());
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getBoolean(1);
-            }
+            return rs.next() && rs.getBoolean(1);
         } catch (Exception e) {
             System.err.println("❌ Ошибка при проверке таблицы: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     // Метод для проверки и создания администратора

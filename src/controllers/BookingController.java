@@ -80,4 +80,19 @@ public class BookingController implements IBookingController {
                     booking.getBooking().getCheckIn() + " по " + booking.getBooking().getCheckOut());
         }
     }
+
+    public void showFullBookingDescription(int bookingId) {
+        BookingDetails details = bookingRepository.getFullBookingDescription(bookingId);
+        if (details == null) {
+            System.out.println("❌ Ошибка: бронирование не найдено.");
+            return;
+        }
+
+        System.out.println("📌 Полная информация о бронировании:");
+        System.out.println("- ID бронирования: " + details.getBooking().getId());
+        System.out.println("- Гость: " + (details.getUser() != null ? details.getUser().getName() + " (Email: " + details.getUser().getEmail() + ")" : "Unknown"));
+        System.out.println("- Номер: " + (details.getRoom() != null ? details.getRoom().getType() : "Unknown") + ", Цена: " + (details.getRoom() != null ? details.getRoom().getPrice() : "0"));
+        System.out.println("- Отель: " + (details.getHotel() != null ? details.getHotel().getName() : "Unknown"));
+        System.out.println("- Даты: с " + details.getBooking().getCheckIn() + " по " + details.getBooking().getCheckOut());
+    }
 }
