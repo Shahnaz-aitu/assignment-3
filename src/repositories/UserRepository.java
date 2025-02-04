@@ -1,6 +1,7 @@
 package repositories;
 
 import data.interfaces.IDB;
+import models.Role;
 import models.User;
 import repositories.interfaces.IUserRepository;
 
@@ -17,7 +18,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User getUserByEmail(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
+        String sql = "SELECT id, name, email, age, password, role FROM users WHERE email = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -26,10 +27,11 @@ public class UserRepository implements IUserRepository {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getInt("age"),
-                        rs.getString("password"),
-                        rs.getString("role")
+                        rs.getInt("age") // ✅ Теперь загружается возраст
                 );
+                user.setPassword(rs.getString("password")); // ✅ Теперь загружается пароль
+                user.setRole(Role.valueOf(rs.getString("role"))); // ✅ Загружаем роль
+
                 System.out.println("Загруженный пользователь: " + user.getName() + ", роль: " + user.getRole());
                 return user;
             }
@@ -76,7 +78,9 @@ public class UserRepository implements IUserRepository {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt("id"), name, email, age, password, "USER");
+                User newUser = new User(rs.getInt("id"), name, email, age);
+                newUser.setPassword(password); // ✅ Устанавливаем пароль
+                return newUser;
             }
         } catch (Exception e) {
             System.err.println("Ошибка при создании пользователя: " + e.getMessage());
@@ -86,20 +90,22 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User searchUser(String query) {
-        String sql = "SELECT * FROM users WHERE name ILIKE ? OR email ILIKE ?";
+        String sql = "SELECT id, name, email, age, password, role FROM users WHERE name ILIKE ? OR email ILIKE ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, "%" + query + "%");
             stmt.setString(2, "%" + query + "%");
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(
+                User user = new User(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getInt("age"),
-                        rs.getString("password"),
-                        rs.getString("role"));
+                        rs.getInt("age") // ✅ Теперь загружается возраст
+                );
+                user.setPassword(rs.getString("password")); // ✅ Загружаем пароль
+                user.setRole(Role.valueOf(rs.getString("role"))); // ✅ Загружаем роль
+                return user;
             }
         } catch (Exception e) {
             System.err.println("Ошибка при поиске пользователя: " + e.getMessage());
@@ -109,6 +115,24 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User getUserById(int id) {
+        String sql = "SELECT id, name, email, age, password, role FROM users WHERE id = ?";
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                User user = new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getInt("age")
+                );
+                user.setPassword(rs.getString("password"));
+                user.setRole(Role.valueOf(rs.getString("role")));
+                return user;
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при получении пользователя по ID: " + e.getMessage());
+        }
         return null;
     }
 

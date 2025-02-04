@@ -38,6 +38,7 @@ public class HotelBookingApplication {
             System.out.println("6. Поиск пользователя");
             System.out.println("7. Удаление пользователя");
             System.out.println("8. Выход");
+            System.out.println("9. Просмотр бронирования"); // ✅ Добавлен новый пункт
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -55,6 +56,7 @@ public class HotelBookingApplication {
                     System.out.println("Выход...");
                     return;
                 }
+                case 9 -> viewBooking(); // ✅ Вызов нового метода
                 default -> System.out.println("Неверный выбор, попробуйте снова.");
             }
         }
@@ -167,5 +169,19 @@ public class HotelBookingApplication {
         } else {
             System.out.println("❌ Ошибка: пользователь не найден или не удалось удалить.");
         }
+    }
+
+    private void viewBooking() {
+        if (currentUser == null) {
+            System.out.println("❌ Вам нужно войти в систему.");
+            return;
+        }
+
+        System.out.print("\nВведите ID бронирования: ");
+        int bookingId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("\n=== ✅ Проверка полной информации о бронировании ===");
+        bookingController.showFullBookingDescription(bookingId);
     }
 }

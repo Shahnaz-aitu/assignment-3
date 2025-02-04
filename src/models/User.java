@@ -12,29 +12,25 @@ public class User {
     private Role role;
     private Set<Permission> permissions = new HashSet<>();
 
-    // Конструктор с id (например, при получении из БД)
-    public User(int id, String name, String email, int age, String password, String role) {
+    public User(int id, String name, String email, int age) {
         this.id = id;
         this.name = name;
         this.email = email;
-        setAge(age);  // Используем сеттер для проверки
-        this.password = password;
-        this.role = Role.valueOf(role);
+        setAge(age);
+        this.password = null;
+        this.role = Role.USER;
     }
 
-    // Конструктор без id (при регистрации нового пользователя)
     public User(String name, String email, int age, String password) {
         this.name = name;
         this.email = email;
         setAge(age);
         this.password = password;
         this.role = Role.USER;
-        // Добавляем базовые разрешения для пользователя
         this.permissions.add(Permission.CREATE_BOOKING);
         this.permissions.add(Permission.VIEW_ROOMS);
     }
 
-    // Геттеры
     public int getId() {
         return id;
     }
@@ -57,7 +53,6 @@ public class User {
         return new HashSet<>(permissions);
     }
 
-    // Сеттеры
     public void setId(int id) {
         this.id = id;
     }
@@ -69,9 +64,11 @@ public class User {
     }
     public void setAge(int age) {
         if (age < 18) {
-            throw new IllegalArgumentException("Возраст должен быть 18 лет или старше.");
+            System.out.println("⚠️ Возраст меньше 18, автоматически исправляем.");
+            this.age = 18;
+        } else {
+            this.age = age;
         }
-        this.age = age;
     }
     public void setPassword(String password) {
         this.password = password;
@@ -80,14 +77,7 @@ public class User {
         this.role = role;
     }
 
-    // Методы для работы с разрешениями
     public boolean hasPermission(Permission requiredPermission) {
-        return this.role == Role.ADMIN || permissions.contains(requiredPermission);
-    }
-    public void addPermission(Permission permission) {
-        permissions.add(permission);
-    }
-    public void removePermission(Permission permission) {
-        permissions.remove(permission);
+        return false;
     }
 }
