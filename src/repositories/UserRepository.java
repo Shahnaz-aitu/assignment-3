@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 
 public class UserRepository implements IUserRepository {
     private final IDB db;
+    private int age;
 
     public UserRepository(IDB db) {
         this.db = db;
@@ -26,10 +27,7 @@ public class UserRepository implements IUserRepository {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getInt("age"),
-                        rs.getString("password"),
-                        rs.getString("role")
-                );
+                        age);
                 System.out.println("Загруженный пользователь: " + user.getName() + ", роль: " + user.getRole());
                 return user;
             }
@@ -76,7 +74,7 @@ public class UserRepository implements IUserRepository {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new User(rs.getInt("id"), name, email, age, password, "USER");
+                return new User(rs.getInt("id"), name, email, age);
             }
         } catch (Exception e) {
             System.err.println("Ошибка при создании пользователя: " + e.getMessage());
@@ -97,9 +95,7 @@ public class UserRepository implements IUserRepository {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getInt("age"),
-                        rs.getString("password"),
-                        rs.getString("role"));
+                        age);
             }
         } catch (Exception e) {
             System.err.println("Ошибка при поиске пользователя: " + e.getMessage());
