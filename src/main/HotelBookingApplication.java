@@ -101,7 +101,7 @@ public class HotelBookingApplication {
         System.out.print("Введите ваш пароль: ");
         String password = scanner.nextLine();
 
-        User user = userController.getUserByEmail(email);
+        User user = userController.getUserByEmail(email, currentUser); // Исправленный вызов метода
         if (user != null && user.getPassword().equals(password)) {
             System.out.println("✅ Добро пожаловать, " + user.getName() + "!");
             currentUser = user;
@@ -213,5 +213,3 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
-
-
