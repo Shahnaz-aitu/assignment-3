@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RoomRepository implements IRoomRepository {
     private final IDB db;
@@ -21,69 +22,58 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public List<Room> getAllRooms() {
-        List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, COALESCE(category, 'STANDARD') AS category, price, is_available FROM rooms";
+        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, " +
+                "COALESCE(category, 'STANDARD') AS category, price, is_available FROM rooms";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
+
+            List<Room> rooms = new ArrayList<>();
             while (rs.next()) {
-                String roomType = rs.getString("room_type");
-                String category = rs.getString("category");
-
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
-
-                rooms.add(new Room(
-                        rs.getInt("id"),
-                        rs.getInt("hotel_id"),
-                        roomType,
-                        rs.getDouble("price"),
-                        rs.getBoolean("is_available"),
-                        RoomCategory.valueOf(category.toUpperCase())
-                ));
+                rooms.add(mapRoom(rs));
             }
+
+            // ✅ Используем forEach() для красивого вывода в консоль
+            rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
+                    " | Тип: " + room.getType() + " | Категория: " + room.getCategory()));
+
+            return rooms;
         } catch (Exception e) {
             System.err.println("❌ Ошибка при получении всех номеров: " + e.getMessage());
             e.printStackTrace();
         }
-        return rooms;
+        return new ArrayList<>();
     }
 
     @Override
     public List<Room> getRoomsByHotelId(int hotelId) {
-        List<Room> rooms = new ArrayList<>();
         String sql = "SELECT r.id, r.hotel_id, COALESCE(r.room_type, 'Unknown') AS room_type, " +
                 "r.price, r.is_available, COALESCE(rc.category, 'Unknown') AS category " +
                 "FROM rooms r " +
-                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +  // ✅ Добавляем JOIN
+                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +
                 "WHERE r.hotel_id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
+
+            List<Room> rooms = new ArrayList<>();
             while (rs.next()) {
-                String roomType = rs.getString("room_type"); // ✅ Загружаем тип номера
-                String category = rs.getString("category");
-
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
-
-                rooms.add(new Room(
-                        rs.getInt("id"),
-                        rs.getInt("hotel_id"),
-                        roomType, // ✅ Теперь передаем корректный тип
-                        rs.getDouble("price"),
-                        rs.getBoolean("is_available"),
-                        RoomCategory.valueOf(category.toUpperCase())
-                ));
+                rooms.add(mapRoom(rs));
             }
+
+            // ✅ Используем forEach() для вывода
+            rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
+                    " | Тип: " + room.getType() + " | Категория: " + room.getCategory()));
+
+            return rooms;
         } catch (Exception e) {
             System.err.println("❌ Ошибка при получении номеров по ID отеля: " + e.getMessage());
             e.printStackTrace();
         }
-        return rooms;
+        return new ArrayList<>();
     }
-
-
 
     @Override
     public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
@@ -97,10 +87,7 @@ public class RoomRepository implements IRoomRepository {
             stmt.setDate(3, new java.sql.Date(checkIn.getTime()));
 
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count == 0;
-            }
+            return rs.next() && rs.getInt(1) == 0;
         } catch (Exception e) {
             System.err.println("❌ Ошибка при проверке доступности номера: " + e.getMessage());
             e.printStackTrace();
@@ -113,7 +100,7 @@ public class RoomRepository implements IRoomRepository {
         String sql = "SELECT r.id, r.hotel_id, COALESCE(r.room_type, 'Unknown') AS room_type, " +
                 "r.price, r.is_available, COALESCE(rc.category, 'Unknown') AS category " +
                 "FROM rooms r " +
-                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +  // ✅ Добавлен LEFT JOIN
+                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +
                 "WHERE r.id = ?";
 
         try (Connection conn = db.getConnection();
@@ -121,24 +108,29 @@ public class RoomRepository implements IRoomRepository {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                String roomType = rs.getString("room_type");
-                String category = rs.getString("category"); // ✅ Теперь правильно загружается категория
-
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
-
-                return new Room(
-                        rs.getInt("id"),
-                        rs.getInt("hotel_id"),
-                        roomType,
-                        rs.getDouble("price"),
-                        rs.getBoolean("is_available"),
-                        RoomCategory.valueOf(category.toUpperCase()) // ✅ Исправлено использование категории
-                );
+                Room room = mapRoom(rs);
+                System.out.println("🔍 Загружен номер ID: " + room.getId() +
+                        " | Тип: " + room.getType() + " | Категория: " + room.getCategory());
+                return room;
             }
         } catch (Exception e) {
             System.err.println("❌ Ошибка при получении номера по ID: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * ✅ **Метод для маппинга данных из ResultSet в объект Room**
+     */
+    private Room mapRoom(ResultSet rs) throws Exception {
+        return new Room(
+                rs.getInt("id"),
+                rs.getInt("hotel_id"),
+                rs.getString("room_type"),
+                rs.getDouble("price"),
+                rs.getBoolean("is_available"),
+                RoomCategory.valueOf(rs.getString("category").toUpperCase())
+        );
     }
 }

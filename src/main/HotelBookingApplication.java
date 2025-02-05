@@ -61,7 +61,7 @@ public class HotelBookingApplication {
                 case 5 -> bookRoom();
                 case 6 -> searchUser();
                 case 7 -> deleteUser();
-                case 8 -> viewBooking();  // ✅ Исправлено (метод добавлен ниже)
+                case 8 -> viewBooking();
                 case 9 -> {
                     System.out.println("Выход...");
                     return;
@@ -141,13 +141,13 @@ public class HotelBookingApplication {
         }
 
         System.out.println("\n=== Доступные номера ===");
-        for (Room room : availableRooms) {
-            System.out.println("- Номер ID: " + room.getId() +
-                    " | Тип: " + room.getType() +
-                    " | Категория: " + room.getCategory() +
-                    " | Цена: " + room.getPrice() +
-                    " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
-        }
+        availableRooms.forEach(room ->
+                System.out.println("- Номер ID: " + room.getId() +
+                        " | Тип: " + room.getType() +
+                        " | Категория: " + room.getCategory() +
+                        " | Цена: " + room.getPrice() +
+                        " | Доступность: " + (room.isAvailable() ? "✅" : "❌"))
+        );
 
         System.out.print("Введите ID номера для бронирования: ");
         while (!scanner.hasNextInt()) {
@@ -167,11 +167,7 @@ public class HotelBookingApplication {
                 java.sql.Date.valueOf(checkInDate),
                 java.sql.Date.valueOf(checkOutDate));
 
-        if (success) {
-            System.out.println("✅ Бронирование успешно!");
-        } else {
-            System.out.println("❌ Не удалось выполнить бронирование.");
-        }
+        System.out.println(success ? "✅ Бронирование успешно!" : "❌ Не удалось выполнить бронирование.");
     }
 
     private void searchUser() {
@@ -179,11 +175,9 @@ public class HotelBookingApplication {
         String query = scanner.nextLine();
         User foundUser = userController.searchUser(query);
 
-        if (foundUser != null) {
-            System.out.println("✅ Найден пользователь: " + foundUser.getName());
-        } else {
-            System.out.println("❌ Пользователь не найден.");
-        }
+        System.out.println(foundUser != null
+                ? "✅ Найден пользователь: " + foundUser.getName()
+                : "❌ Пользователь не найден.");
     }
 
     private void deleteUser() {
@@ -196,14 +190,11 @@ public class HotelBookingApplication {
         String email = scanner.nextLine();
 
         boolean success = userController.deleteUser(email, currentUser);
-        if (success) {
-            System.out.println("✅ Пользователь успешно удален.");
-        } else {
-            System.out.println("❌ Ошибка: пользователь не найден или не удалось удалить.");
-        }
+        System.out.println(success
+                ? "✅ Пользователь успешно удален."
+                : "❌ Ошибка: пользователь не найден или не удалось удалить.");
     }
 
-    // ✅ Добавлен исправленный метод viewBooking()
     private void viewBooking() {
         if (currentUser == null) {
             System.out.println("❌ Вам нужно войти в систему.");
@@ -222,4 +213,5 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
+
 

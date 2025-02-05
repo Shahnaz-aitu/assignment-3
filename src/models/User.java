@@ -12,25 +12,33 @@ public class User {
     private Role role;
     private Set<Permission> permissions = new HashSet<>();
 
-    public User(int id, String name, String email, int age) {
+    // ✅ Новый конструктор (Используется в UserRepository)
+    public User(int id, String name, String email, int age, String password, Role role) {
         this.id = id;
         this.name = name;
         this.email = email;
         setAge(age);
-        this.password = null;
-        this.role = Role.USER;
-        this.permissions.add(Permission.CREATE_BOOKING);  // ✅ Добавлены разрешения по умолчанию
+        this.password = password;
+        this.role = role;
+
+        // Добавляем разрешения по умолчанию
+        this.permissions.add(Permission.CREATE_BOOKING);
         this.permissions.add(Permission.VIEW_ROOMS);
+
+        // ✅ Если пользователь - админ, даем все права
+        if (role == Role.ADMIN) {
+            for (Permission p : Permission.values()) {
+                this.permissions.add(p);
+            }
+        }
+    }
+
+    public User(int id, String name, String email, int age) {
+        this(id, name, email, age, null, Role.USER);
     }
 
     public User(String name, String email, int age, String password) {
-        this.name = name;
-        this.email = email;
-        setAge(age);
-        this.password = password;
-        this.role = Role.USER;
-        this.permissions.add(Permission.CREATE_BOOKING);
-        this.permissions.add(Permission.VIEW_ROOMS);
+        this(0, name, email, age, password, Role.USER);
     }
 
     public int getId() {
