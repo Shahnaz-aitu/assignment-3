@@ -23,20 +23,12 @@ public class UserRepository implements IUserRepository {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                User user = new User(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getInt("age") // ✅ Теперь загружается возраст
-                );
-                user.setPassword(rs.getString("password")); // ✅ Теперь загружается пароль
-                user.setRole(Role.valueOf(rs.getString("role"))); // ✅ Загружаем роль
-
-                System.out.println("Загруженный пользователь: " + user.getName() + ", роль: " + user.getRole());
+                User user = mapUser(rs);
+                System.out.println("✅ Загруженный пользователь: " + user.getName() + ", роль: " + user.getRole());
                 return user;
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении пользователя по email: " + e.getMessage());
+            System.err.println("❌ Ошибка при получении пользователя по email: " + e.getMessage());
         }
         return null;
     }
@@ -64,7 +56,7 @@ public class UserRepository implements IUserRepository {
     @Override
     public User createUser(String name, String email, int age, String password) {
         if (age < 18) {
-            System.err.println("Ошибка: возраст должен быть больше 18 лет.");
+            System.err.println("❌ Ошибка: возраст должен быть больше 18 лет.");
             return null;
         }
 
@@ -79,36 +71,37 @@ public class UserRepository implements IUserRepository {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User newUser = new User(rs.getInt("id"), name, email, age);
-                newUser.setPassword(password); // ✅ Устанавливаем пароль
+                newUser.setPassword(password);
                 return newUser;
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при создании пользователя: " + e.getMessage());
+            System.err.println("❌ Ошибка при создании пользователя: " + e.getMessage());
         }
         return null;
     }
 
     @Override
     public User searchUser(String query) {
-        String sql = "SELECT id, name, email, age, password, role FROM users WHERE name ILIKE ? OR email ILIKE ?";
+        System.out.println("🔍 Поиск пользователя: " + query);
+
+        String sql = "SELECT id, name, email, age, password, role FROM users WHERE email ILIKE ? OR name ILIKE ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setString(1, "%" + query + "%");
-            stmt.setString(2, "%" + query + "%");
+            stmt.setString(1, "%" + query.trim() + "%"); // Ищем email (LIKE)
+            stmt.setString(2, "%" + query.trim() + "%"); // Ищем по имени (LIKE)
+
+            System.out.println("📌 SQL-запрос: " + stmt.toString());
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                User user = new User(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getInt("age") // ✅ Теперь загружается возраст
-                );
-                user.setPassword(rs.getString("password")); // ✅ Загружаем пароль
-                user.setRole(Role.valueOf(rs.getString("role"))); // ✅ Загружаем роль
+                User user = mapUser(rs);
+                System.out.println("✅ Найден пользователь: " + user.getName() + " (Email: " + user.getEmail() + ")");
                 return user;
+            } else {
+                System.out.println("❌ Пользователь не найден в БД.");
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при поиске пользователя: " + e.getMessage());
+            System.err.println("🚨 Ошибка при поиске пользователя: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -120,18 +113,10 @@ public class UserRepository implements IUserRepository {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                User user = new User(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getInt("age")
-                );
-                user.setPassword(rs.getString("password"));
-                user.setRole(Role.valueOf(rs.getString("role")));
-                return user;
+                return mapUser(rs);
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении пользователя по ID: " + e.getMessage());
+            System.err.println("❌ Ошибка при получении пользователя по ID: " + e.getMessage());
         }
         return null;
     }
@@ -139,5 +124,27 @@ public class UserRepository implements IUserRepository {
     @Override
     public IDB getDb() {
         return db;
+    }
+
+    /**
+     * ✅ **Метод для маппинга пользователя из ResultSet**
+     */
+    private User mapUser(ResultSet rs) throws Exception {
+        User user = new User(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getInt("age")
+        );
+        user.setPassword(rs.getString("password"));
+
+        try {
+            user.setRole(Role.valueOf(rs.getString("role").toUpperCase())); // Fix role case
+        } catch (Exception e) {
+            System.err.println("⚠️ Ошибка при загрузке роли: " + e.getMessage());
+            user.setRole(Role.USER); // Если роль не найдена, ставим "USER" по умолчанию
+        }
+
+        return user;
     }
 }

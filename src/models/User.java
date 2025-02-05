@@ -33,17 +33,46 @@ public class User {
         this.permissions.add(Permission.VIEW_ROOMS);
     }
 
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public int getAge() { return age; }
-    public Role getRole() { return role; }
-    public String getPassword() { return password; }
-    public Set<Permission> getPermissions() { return new HashSet<>(permissions); }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setEmail(String email) { this.email = email; }
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Set<Permission> getPermissions() {
+        return new HashSet<>(permissions);
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public void setAge(int age) {
         if (age < 18) {
             System.out.println("⚠️ Возраст меньше 18, автоматически исправляем.");
@@ -52,10 +81,22 @@ public class User {
             this.age = age;
         }
     }
-    public void setPassword(String password) { this.password = password; }
-    public void setRole(Role role) { this.role = role; }
 
-    public boolean hasPermission(Permission requiredPermission) {
-        return permissions.contains(requiredPermission);  // ✅ Теперь проверяет наличие разрешений
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean hasPermission(Permission permission) {
+        // ✅ Администратор получает все права автоматически
+        if (this.role == Role.ADMIN) {
+            return true;
+        }
+
+        // Остальные роли должны иметь явное разрешение
+        return this.permissions.contains(permission);
     }
 }

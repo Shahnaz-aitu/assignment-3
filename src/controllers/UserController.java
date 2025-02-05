@@ -37,19 +37,20 @@ public class UserController implements IUserController {
 
     @Override
     public boolean deleteUser(String email, User currentUser) {
-        try {
-            // Проверяем, что пользователь обладает разрешением на управление пользователями
-            AuthorizationService.checkPermission(currentUser, Permission.MANAGE_USERS);
-        } catch (AuthorizationException e) {
-            System.out.println("❌ Ошибка: " + e.getMessage());
+        System.out.println("🔍 Удаление пользователя: " + email + " (Запрос от: " + currentUser.getEmail() + ")");
+
+        if (!currentUser.hasPermission(Permission.MANAGE_USERS)) {
+            System.out.println("❌ Ошибка: У вас нет прав на удаление пользователей.");
             return false;
         }
+
         boolean success = userRepository.deleteUser(email);
         if (success) {
-            System.out.println("✅ Пользователь успешно удален.");
+            System.out.println("✅ Пользователь " + email + " успешно удален.");
         } else {
-            System.out.println("❌ Ошибка при удалении пользователя.");
+            System.out.println("❌ Ошибка: пользователь " + email + " не найден или не удалось удалить.");
         }
+
         return success;
     }
 }
