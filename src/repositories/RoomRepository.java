@@ -22,15 +22,18 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms";
+        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
+                String roomType = rs.getString("room_type");
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+
                 rooms.add(new Room(
                         rs.getInt("id"),
                         rs.getInt("hotel_id"),
-                        rs.getString("room_type"),  // ✅ Исправлено: теперь тип номера загружается
+                        roomType,
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
                         null
@@ -46,16 +49,19 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getRoomsByHotelId(int hotelId) {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms WHERE hotel_id = ?";
+        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms WHERE hotel_id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
+                String roomType = rs.getString("room_type");
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+
                 rooms.add(new Room(
                         rs.getInt("id"),
                         rs.getInt("hotel_id"),
-                        rs.getString("room_type"),  // ✅ Исправлено: теперь передается тип номера
+                        roomType,
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
                         null
@@ -73,7 +79,6 @@ public class RoomRepository implements IRoomRepository {
         String sql = "SELECT COUNT(*) FROM bookings " +
                 "WHERE room_id = ? " +
                 "AND (check_in_date < ? AND check_out_date > ?)";
-
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, roomId);
@@ -94,16 +99,19 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public Room getRoomById(int id) {
-        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms WHERE id = ?";
+        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
+                String roomType = rs.getString("room_type");
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+
                 return new Room(
                         rs.getInt("id"),
                         rs.getInt("hotel_id"),
-                        rs.getString("room_type"),  // ✅ Теперь загружается корректно
+                        roomType,
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
                         null

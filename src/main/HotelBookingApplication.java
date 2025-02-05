@@ -43,6 +43,12 @@ public class HotelBookingApplication {
             System.out.println("9. Выход");
             System.out.print("Выберите действие: ");
 
+            if (!scanner.hasNextInt()) {
+                System.out.println("❌ Ошибка: Введите корректный номер действия.");
+                scanner.next();
+                continue;
+            }
+
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -59,7 +65,7 @@ public class HotelBookingApplication {
                     System.out.println("Выход...");
                     return;
                 }
-                default -> System.out.println("Неверный выбор, попробуйте снова.");
+                default -> System.out.println("❌ Ошибка: неверный выбор, попробуйте снова.");
             }
         }
     }
@@ -70,6 +76,10 @@ public class HotelBookingApplication {
         System.out.print("Введите ваш email: ");
         String email = scanner.nextLine();
         System.out.print("Введите ваш возраст: ");
+        while (!scanner.hasNextInt()) {
+            System.out.println("❌ Ошибка: Введите корректный возраст.");
+            scanner.next();
+        }
         int age = scanner.nextInt();
         scanner.nextLine();
         System.out.print("Введите ваш пароль: ");
@@ -77,10 +87,10 @@ public class HotelBookingApplication {
 
         User newUser = userController.createUser(userName, email, age, password);
         if (newUser != null) {
-            System.out.println(userName + ", вы успешно зарегистрировались!");
+            System.out.println("✅ " + userName + ", вы успешно зарегистрировались!");
             currentUser = newUser;
         } else {
-            System.out.println("Ошибка при регистрации. Попробуйте снова.");
+            System.out.println("❌ Ошибка при регистрации. Попробуйте снова.");
         }
     }
 
@@ -99,16 +109,12 @@ public class HotelBookingApplication {
         }
     }
 
-    private void manageHotels() {
-        System.out.println("hotel: Hilton; City: Astana; Rank: 4.8");
-    }
-
     private void manageBookings() {
         if (currentUser == null) {
             System.out.println("❌ Вам нужно войти в систему.");
             return;
         }
-        System.out.println("Ваши бронирования:");
+        System.out.println("📌 Ваши бронирования:");
         bookingController.showUserBookings(currentUser.getEmail());
     }
 
@@ -119,6 +125,10 @@ public class HotelBookingApplication {
         }
 
         System.out.print("Введите ID отеля: ");
+        while (!scanner.hasNextInt()) {
+            System.out.println("❌ Ошибка: Введите корректный ID отеля.");
+            scanner.next();
+        }
         int hotelId = scanner.nextInt();
         scanner.nextLine();
 
@@ -131,15 +141,20 @@ public class HotelBookingApplication {
 
         System.out.println("\n=== Доступные номера ===");
         for (Room room : availableRooms) {
-            System.out.println("- Номер ID: " + room.getId() + " | Тип: " + room.getType() + " | Цена: " +
-                    room.getPrice() + " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
+            System.out.println("- Номер ID: " + room.getId() +
+                    " | Тип: " + (room.getType() != null ? room.getType() : "Unknown") +
+                    " | Цена: " + room.getPrice() +
+                    " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
         }
 
         System.out.print("Введите ID номера для бронирования: ");
+        while (!scanner.hasNextInt()) {
+            System.out.println("❌ Ошибка: Введите корректный ID номера.");
+            scanner.next();
+        }
         int roomId = scanner.nextInt();
         scanner.nextLine();
 
-        // Проверка, что номер действительно есть в списке доступных
         boolean roomExists = availableRooms.stream().anyMatch(r -> r.getId() == roomId);
         if (!roomExists) {
             System.out.println("❌ Ошибка: выбранный номер недоступен.");
@@ -168,9 +183,9 @@ public class HotelBookingApplication {
         String query = scanner.nextLine();
         User foundUser = userController.searchUser(query);
         if (foundUser != null) {
-            System.out.println("Найден пользователь: " + foundUser.getName());
+            System.out.println("✅ Найден пользователь: " + foundUser.getName());
         } else {
-            System.out.println("Пользователь не найден.");
+            System.out.println("❌ Пользователь не найден.");
         }
     }
 
@@ -198,6 +213,10 @@ public class HotelBookingApplication {
         }
 
         System.out.print("\nВведите ID бронирования: ");
+        while (!scanner.hasNextInt()) {
+            System.out.println("❌ Ошибка: Введите корректный ID бронирования.");
+            scanner.next();
+        }
         int bookingId = scanner.nextInt();
         scanner.nextLine();
 
