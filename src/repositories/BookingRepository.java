@@ -159,4 +159,27 @@ public class BookingRepository implements IBookingRepository {
 
         return null;
     }
+
+    /**
+     * Проверяет, доступен ли номер на указанные даты.
+     */
+    public boolean isRoomAvailable(int roomId, java.sql.Date checkIn, java.sql.Date checkOut) {
+        String sql = "SELECT COUNT(*) FROM bookings WHERE room_id = ? " +
+                "AND ((check_in_date BETWEEN ? AND ?) OR (check_out_date BETWEEN ? AND ?))";
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, roomId);
+            stmt.setDate(2, checkIn);
+            stmt.setDate(3, checkOut);
+            stmt.setDate(4, checkIn);
+            stmt.setDate(5, checkOut);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) == 0; // Если 0, значит номер доступен
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -22,21 +22,22 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT r.id, r.hotel_id, r.room_type, r.price, " +
-                "COALESCE(r.is_available, TRUE) AS is_available, rc.category " +
-                "FROM rooms r " +
-                "LEFT JOIN room_categories rc ON r.category_id = rc.id";
-
+        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
-                Room room = mapRoom(rs);
-                rooms.add(room);
+                rooms.add(new Room(
+                        rs.getInt("id"),
+                        rs.getInt("hotel_id"),
+                        rs.getString("room_type"),  // ✅ Исправлено: теперь тип номера загружается
+                        rs.getDouble("price"),
+                        rs.getBoolean("is_available"),
+                        null
+                ));
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении всех номеров: " + e.getMessage());
+            System.err.println("❌ Ошибка при получении всех номеров: " + e.getMessage());
             e.printStackTrace();
         }
         return rooms;
@@ -45,23 +46,23 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getRoomsByHotelId(int hotelId) {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT r.id, r.hotel_id, r.room_type, r.price, " +
-                "COALESCE(r.is_available, TRUE) AS is_available, rc.category " +
-                "FROM rooms r " +
-                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +
-                "WHERE r.hotel_id = ?";
-
+        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms WHERE hotel_id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                Room room = mapRoom(rs);
-                rooms.add(room);
+                rooms.add(new Room(
+                        rs.getInt("id"),
+                        rs.getInt("hotel_id"),
+                        rs.getString("room_type"),  // ✅ Исправлено: теперь передается тип номера
+                        rs.getDouble("price"),
+                        rs.getBoolean("is_available"),
+                        null
+                ));
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении номеров по ID отеля: " + e.getMessage());
+            System.err.println("❌ Ошибка при получении номеров по ID отеля: " + e.getMessage());
             e.printStackTrace();
         }
         return rooms;
@@ -85,7 +86,7 @@ public class RoomRepository implements IRoomRepository {
                 return count == 0;
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при проверке доступности номера: " + e.getMessage());
+            System.err.println("❌ Ошибка при проверке доступности номера: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -93,49 +94,25 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public Room getRoomById(int id) {
-        String sql = "SELECT r.id, r.hotel_id, r.room_type, r.price, " +
-                "COALESCE(r.is_available, TRUE) AS is_available, rc.category " +
-                "FROM rooms r " +
-                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +
-                "WHERE r.id = ?";
-
+        String sql = "SELECT id, hotel_id, room_type, price, is_available FROM rooms WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
-                return mapRoom(rs);
+                return new Room(
+                        rs.getInt("id"),
+                        rs.getInt("hotel_id"),
+                        rs.getString("room_type"),  // ✅ Теперь загружается корректно
+                        rs.getDouble("price"),
+                        rs.getBoolean("is_available"),
+                        null
+                );
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при получении номера по ID: " + e.getMessage());
+            System.err.println("❌ Ошибка при получении номера по ID: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
-    }
-
-    private Room mapRoom(ResultSet rs) throws Exception {
-        RoomCategory roomCategory = getRoomCategory(rs.getString("category"));
-
-        return new Room(
-                rs.getInt("id"),
-                rs.getInt("hotel_id"),
-                rs.getString("room_type"),
-                rs.getDouble("price"),
-                rs.getBoolean("is_available"),
-                roomCategory
-        );
-    }
-
-    private RoomCategory getRoomCategory(String categoryName) {
-        if (categoryName == null) {
-            return RoomCategory.STANDARD;
-        }
-        try {
-            return RoomCategory.valueOf(categoryName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            System.err.println("⚠ Ошибка: Неизвестная категория комнаты '" + categoryName + "'. Установлено 'STANDARD'.");
-            return RoomCategory.STANDARD;
-        }
     }
 }

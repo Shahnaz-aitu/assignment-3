@@ -4,8 +4,10 @@ import controllers.interfaces.IBookingController;
 import controllers.interfaces.IHotelController;
 import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
+import models.Room;
 import models.User;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class HotelBookingApplication {
@@ -37,8 +39,8 @@ public class HotelBookingApplication {
             System.out.println("5. Забронировать");
             System.out.println("6. Поиск пользователя");
             System.out.println("7. Удаление пользователя");
-            System.out.println("8. Просмотр бронирования"); // ✅ Перенесено выше выхода
-            System.out.println("9. Выход"); // ✅ Теперь в самом конце
+            System.out.println("8. Просмотр бронирования");
+            System.out.println("9. Выход");
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -52,7 +54,7 @@ public class HotelBookingApplication {
                 case 5 -> bookRoom();
                 case 6 -> searchUser();
                 case 7 -> deleteUser();
-                case 8 -> viewBooking(); // ✅ Теперь перед выходом
+                case 8 -> viewBooking();
                 case 9 -> {
                     System.out.println("Выход...");
                     return;
@@ -120,11 +122,29 @@ public class HotelBookingApplication {
         int hotelId = scanner.nextInt();
         scanner.nextLine();
 
-        roomController.getRoomsByHotelId(hotelId, currentUser);
+        List<Room> availableRooms = roomController.getRoomsByHotelId(hotelId, currentUser);
+
+        if (availableRooms.isEmpty()) {
+            System.out.println("❌ В этом отеле нет доступных номеров.");
+            return;
+        }
+
+        System.out.println("\n=== Доступные номера ===");
+        for (Room room : availableRooms) {
+            System.out.println("- Номер ID: " + room.getId() + " | Тип: " + room.getType() + " | Цена: " +
+                    room.getPrice() + " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
+        }
 
         System.out.print("Введите ID номера для бронирования: ");
         int roomId = scanner.nextInt();
         scanner.nextLine();
+
+        // Проверка, что номер действительно есть в списке доступных
+        boolean roomExists = availableRooms.stream().anyMatch(r -> r.getId() == roomId);
+        if (!roomExists) {
+            System.out.println("❌ Ошибка: выбранный номер недоступен.");
+            return;
+        }
 
         System.out.print("Введите дату заезда (YYYY-MM-DD): ");
         String checkInDate = scanner.nextLine();
@@ -155,7 +175,7 @@ public class HotelBookingApplication {
     }
 
     private void deleteUser() {
-        if (currentUser == null || !currentUser.getRole().equals("ADMIN")) {
+        if (currentUser == null || !"ADMIN".equalsIgnoreCase(currentUser.getRole().toString())) {
             System.out.println("❌ Только администратор может удалять пользователей.");
             return;
         }
@@ -185,4 +205,3 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
-

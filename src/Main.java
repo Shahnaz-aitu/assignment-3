@@ -18,13 +18,13 @@ public class Main {
             IDB db = new PostgresDB("localhost", 5432, "HotelProject", "postgres", "12060745");
 
             if (db.getConnection() == null) {
-                System.err.println("Ошибка: Не удалось подключиться к базе данных.");
+                System.err.println("❌ Ошибка: Не удалось подключиться к базе данных.");
                 return;
             }
 
             // Проверяем существование таблиц
             if (!checkTableExists(db, "orders") || !checkTableExists(db, "users")) {
-                System.err.println("Ошибка: Отсутствуют необходимые таблицы.");
+                System.err.println("❌ Ошибка: Отсутствуют необходимые таблицы.");
                 return;
             }
 
@@ -34,8 +34,8 @@ public class Main {
             IBookingRepository bookingRepo = new BookingRepository(db);
             IUserRepository userRepo = new UserRepository(db);
 
-            // Создание контроллеров
-            IHotelController hotelController = new HotelController(hotelRepo);
+            // ✅ Передаем два аргумента: hotelRepo и roomRepo
+            IHotelController hotelController = new HotelController(hotelRepo, roomRepo);
             IRoomController roomController = new RoomController(roomRepo);
             IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo, hotelRepo);
             IUserController userController = new UserController(userRepo);
@@ -56,7 +56,7 @@ public class Main {
             // Закрытие соединения
             db.close();
         } catch (Exception e) {
-            System.err.println("Ошибка в работе приложения: " + e.getMessage());
+            System.err.println("❌ Ошибка в работе приложения: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -70,7 +70,7 @@ public class Main {
             ResultSet rs = stmt.executeQuery();
             return rs.next() && rs.getBoolean(1);
         } catch (Exception e) {
-            System.err.println("Ошибка при проверке таблицы: " + e.getMessage());
+            System.err.println("❌ Ошибка при проверке таблицы: " + e.getMessage());
             return false;
         }
     }
@@ -93,7 +93,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при создании администратора: " + e.getMessage());
+            System.err.println("❌ Ошибка при создании администратора: " + e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Ошибка при создании Test User: " + e.getMessage());
+            System.err.println("❌ Ошибка при создании Test User: " + e.getMessage());
         }
     }
 }

@@ -3,9 +3,6 @@ package controllers;
 import controllers.interfaces.IBookingController;
 import models.*;
 import repositories.interfaces.*;
-import services.AuthorizationService;
-import services.AuthorizationException;
-import models.Permission;
 
 import java.util.Date;
 import java.util.List;
@@ -29,25 +26,38 @@ public class BookingController implements IBookingController {
 
     @Override
     public boolean createBooking(String userEmail, int roomId, Date checkIn, Date checkOut) {
+        System.out.println("🔎 Проверка пользователя...");
         User user = userRepository.getUserByEmail(userEmail);
-        try {
-            AuthorizationService.checkPermission(user, Permission.CREATE_BOOKING);
-        } catch (AuthorizationException e) {
-            System.out.println("Ошибка: " + e.getMessage());
+        if (user == null) {
+            System.out.println("❌ Ошибка: пользователь не найден.");
             return false;
         }
 
+        // ✅ Проверяем, имеет ли пользователь право на бронирование
+        if (!user.hasPermission(Permission.CREATE_BOOKING)) {
+            System.out.println("❌ Ошибка: у вас нет прав на бронирование.");
+            return false;
+        }
+
+        System.out.println("✅ Пользователь найден: " + user.getName());
+
+        // ✅ Проверяем существование номера
+        System.out.println("🔎 Проверка номера...");
         Room room = roomRepository.getRoomById(roomId);
-        if (room == null || !Room.RoomValidator.isValid(room)) {
-            System.out.println("Ошибка: некорректные данные номера.");
+        if (room == null) {
+            System.out.println("❌ Ошибка: номер не найден.");
             return false;
         }
 
+        // ✅ Проверяем доступность номера
         if (!roomRepository.isRoomAvailable(roomId, checkIn, checkOut)) {
-            System.out.println("Ошибка: номер недоступен на выбранные даты.");
+            System.out.println("❌ Ошибка: номер уже забронирован на эти даты.");
             return false;
         }
 
+        System.out.println("✅ Номер доступен: " + room.getType() + " | Цена: " + room.getPrice());
+
+        // ✅ Создаем бронирование
         Booking booking = new Booking(user.getId(), roomId, checkIn, checkOut);
         boolean success = bookingRepository.createBooking(booking);
 
@@ -61,19 +71,20 @@ public class BookingController implements IBookingController {
     }
 
     public void showUserBookings(String userEmail) {
+        System.out.println("🔎 Проверка бронирований пользователя...");
         User user = userRepository.getUserByEmail(userEmail);
         if (user == null) {
-            System.out.println("Ошибка: пользователь не найден.");
+            System.out.println("❌ Ошибка: пользователь не найден.");
             return;
         }
 
         List<BookingDetails> bookings = bookingRepository.getUserBookings(user.getId());
         if (bookings.isEmpty()) {
-            System.out.println("Нет активных бронирований.");
+            System.out.println("⚠️ У вас нет активных бронирований.");
             return;
         }
 
-        System.out.println("Ваши бронирования:");
+        System.out.println("📌 Ваши бронирования:");
         for (BookingDetails booking : bookings) {
             System.out.println("- Номер " + booking.getRoom().getType() + " в " +
                     booking.getHotel().getName() + " с " +
@@ -82,6 +93,7 @@ public class BookingController implements IBookingController {
     }
 
     public void showFullBookingDescription(int bookingId) {
+        System.out.println("🔎 Проверка бронирования с ID: " + bookingId);
         BookingDetails details = bookingRepository.getFullBookingDescription(bookingId);
         if (details == null) {
             System.out.println("❌ Ошибка: бронирование не найдено.");
