@@ -6,6 +6,7 @@ import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
 import models.Room;
 import models.User;
+import strategies.*;
 
 import java.util.List;
 import java.util.Scanner;
@@ -60,7 +61,7 @@ public class HotelBookingApplication {
                 case 5 -> bookRoom();
                 case 6 -> searchUser();
                 case 7 -> deleteUser();
-                case 8 -> viewBooking();
+                case 8 -> viewBooking();  // ✅ Исправлено (метод добавлен ниже)
                 case 9 -> {
                     System.out.println("Выход...");
                     return;
@@ -142,7 +143,7 @@ public class HotelBookingApplication {
         System.out.println("\n=== Доступные номера ===");
         for (Room room : availableRooms) {
             System.out.println("- Номер ID: " + room.getId() +
-                    " | Тип: " + (room.getType() != null ? room.getType() : "Unknown") +
+                    " | Тип: " + room.getType() +
                     " | Категория: " + room.getCategory() +
                     " | Цена: " + room.getPrice() +
                     " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
@@ -155,12 +156,6 @@ public class HotelBookingApplication {
         }
         int roomId = scanner.nextInt();
         scanner.nextLine();
-
-        boolean roomExists = availableRooms.stream().anyMatch(r -> r.getId() == roomId);
-        if (!roomExists) {
-            System.out.println("❌ Ошибка: выбранный номер недоступен.");
-            return;
-        }
 
         System.out.print("Введите дату заезда (YYYY-MM-DD): ");
         String checkInDate = scanner.nextLine();
@@ -180,9 +175,10 @@ public class HotelBookingApplication {
     }
 
     private void searchUser() {
-        System.out.print("Введите имя или email для поиска: ");
+        System.out.print("Введите email или имя пользователя для поиска: ");
         String query = scanner.nextLine();
         User foundUser = userController.searchUser(query);
+
         if (foundUser != null) {
             System.out.println("✅ Найден пользователь: " + foundUser.getName());
         } else {
@@ -207,6 +203,7 @@ public class HotelBookingApplication {
         }
     }
 
+    // ✅ Добавлен исправленный метод viewBooking()
     private void viewBooking() {
         if (currentUser == null) {
             System.out.println("❌ Вам нужно войти в систему.");
@@ -225,3 +222,4 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
+

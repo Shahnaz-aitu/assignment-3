@@ -7,12 +7,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class PostgresDB implements IDB {
+    private static PostgresDB instance;
     private final String url;
     private final String user;
     private final String password;
     private Connection connection;
 
-    public PostgresDB(String host, int port, String database, String user, String password) {
+    private PostgresDB(String host, int port, String database, String user, String password) {
         this.url = "jdbc:postgresql://" + host + ":" + port + "/" + database;
         this.user = user;
         this.password = password;
@@ -23,6 +24,18 @@ public class PostgresDB implements IDB {
             e.printStackTrace();
             System.err.println("Не удалось загрузить драйвер PostgreSQL.");
         }
+    }
+
+    // ✅ Singleton - получение единственного экземпляра
+    public static PostgresDB getInstance(String host, int port, String database, String user, String password) {
+        if (instance == null) {
+            synchronized (PostgresDB.class) {
+                if (instance == null) {
+                    instance = new PostgresDB(host, port, database, user, password);
+                }
+            }
+        }
+        return instance;
     }
 
     @Override

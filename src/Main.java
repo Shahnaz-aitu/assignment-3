@@ -3,7 +3,6 @@ import controllers.interfaces.*;
 import data.PostgresDB;
 import data.interfaces.IDB;
 import main.HotelBookingApplication;
-import models.*;
 import repositories.*;
 import repositories.interfaces.*;
 
@@ -15,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Подключение к базе данных
-            IDB db = new PostgresDB("localhost", 5432, "HotelProject", "postgres", "12060745");
+            IDB db = PostgresDB.getInstance("localhost", 5432, "HotelProject", "postgres", "12060745");
 
             if (db.getConnection() == null) {
                 System.err.println("❌ Ошибка: Не удалось подключиться к базе данных.");
@@ -28,13 +27,15 @@ public class Main {
                 return;
             }
 
-            // Инициализация репозиториев
-            IHotelRepository hotelRepo = new HotelRepository(db);
-            IRoomRepository roomRepo = new RoomRepository(db);
-            IBookingRepository bookingRepo = new BookingRepository(db);
-            IUserRepository userRepo = new UserRepository(db);
+            // ✅ Используем Factory для репозиториев
+            RepositoryFactory factory = new RepositoryFactory(db);
 
-            // ✅ Передаем два аргумента: hotelRepo и roomRepo
+            IHotelRepository hotelRepo = factory.createHotelRepository();
+            IRoomRepository roomRepo = factory.createRoomRepository();
+            IBookingRepository bookingRepo = factory.createBookingRepository();
+            IUserRepository userRepo = factory.createUserRepository();
+
+            // ✅ Используем созданные репозитории для контроллеров
             IHotelController hotelController = new HotelController(hotelRepo, roomRepo);
             IRoomController roomController = new RoomController(roomRepo);
             IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo, hotelRepo);

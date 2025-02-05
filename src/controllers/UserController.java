@@ -1,12 +1,10 @@
 package controllers;
 
 import controllers.interfaces.IUserController;
+import models.Permission;
 import models.User;
 import repositories.interfaces.IUserRepository;
 import data.DataValidator;
-import services.AuthorizationService;
-import services.AuthorizationException;
-import models.Permission;
 
 public class UserController implements IUserController {
     private final IUserRepository userRepository;
@@ -22,9 +20,8 @@ public class UserController implements IUserController {
 
     @Override
     public User createUser(String name, String email, int age, String password) {
-        User newUser = new User(name, email, age, password);
-        if (!DataValidator.isValidUser(newUser)) {
-            System.out.println("Ошибка: возраст должен быть 18 лет или старше.");
+        if (age < 18) {
+            System.out.println("❌ Ошибка: возраст должен быть 18 лет или старше.");
             return null;
         }
         return userRepository.createUser(name, email, age, password);
@@ -32,14 +29,20 @@ public class UserController implements IUserController {
 
     @Override
     public User searchUser(String query) {
-        return null;
+        User foundUser = userRepository.searchUser(query);
+        if (foundUser == null) {
+            System.out.println("❌ Пользователь не найден.");
+        } else {
+            System.out.println("✅ Найден пользователь: " + foundUser.getName() + " (Email: " + foundUser.getEmail() + ")");
+        }
+        return foundUser;
     }
 
     @Override
     public boolean deleteUser(String email, User currentUser) {
         System.out.println("🔍 Удаление пользователя: " + email + " (Запрос от: " + currentUser.getEmail() + ")");
 
-        if (!currentUser.hasPermission(Permission.MANAGE_USERS)) {
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getRole().toString())) {
             System.out.println("❌ Ошибка: У вас нет прав на удаление пользователей.");
             return false;
         }
@@ -52,5 +55,10 @@ public class UserController implements IUserController {
         }
 
         return success;
+    }
+
+    // Добавленный метод, чтобы исправить ошибку "cannot find symbol method getUserRepository()"
+    public IUserRepository getUserRepository() {
+        return userRepository;
     }
 }
