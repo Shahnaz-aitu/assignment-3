@@ -13,20 +13,18 @@ import java.sql.ResultSet;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("🚀 Запуск Hotel Booking System...");
-
         try {
             // Подключение к базе данных
             IDB db = new PostgresDB("localhost", 5432, "HotelProject", "postgres", "12060745");
 
             if (db.getConnection() == null) {
-                System.err.println("❌ Ошибка: Не удалось установить соединение с базой данных.");
+                System.err.println("Ошибка: Не удалось подключиться к базе данных.");
                 return;
             }
 
             // Проверяем существование таблиц
             if (!checkTableExists(db, "orders") || !checkTableExists(db, "users")) {
-                System.err.println("❌ Ошибка: Одна из таблиц (orders/users) не найдена. Проверьте, правильно ли названы таблицы.");
+                System.err.println("Ошибка: Отсутствуют необходимые таблицы.");
                 return;
             }
 
@@ -42,59 +40,23 @@ public class Main {
             IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo, hotelRepo);
             IUserController userController = new UserController(userRepo);
 
-            // Проверяем, есть ли администратор, если нет - создаем
+            // Проверяем и создаем администратора и тестового пользователя (если нужно)
             ensureAdminExists(userRepo);
-
-            // Проверяем, есть ли тестовый пользователь, если нет - создаем
             ensureTestUserExists(userRepo);
 
-            // 📌 Тест 1: Проверка JOIN-запроса (получение деталей заказа)
-            System.out.println("\n=== ✅ Проверка JOIN-запроса (получение деталей заказа) ===");
-            Order order = Order.getFullOrderDescription(1, db);
-            if (order != null) {
-                System.out.println("Заказ №" + order.getOrderId());
-                System.out.println("Клиент: " + order.getUserName() + " (" + order.getUserEmail() + ")");
-                System.out.println("Товары:");
-                for (OrderDetails details : order.getOrderDetails()) {
-                    System.out.println("- " + details.getProductName() + " (Категория: " + details.getCategory() + ")");
-                }
-            } else {
-                System.out.println("⚠️ Ошибка при получении заказа.");
-            }
-
-            // 📌 Тест 2: Проверка удаления пользователя (только ADMIN)
-            System.out.println("\n=== ✅ Проверка удаления пользователя (роль ADMIN) ===");
-            User adminUser = userRepo.getUserByEmail("admin@mail.com");
-
-            if (adminUser == null) {
-                System.err.println("❌ Ошибка: Не удалось загрузить администратора из базы.");
-            } else {
-                System.out.println("Роль текущего пользователя: " + adminUser.getRole());
-                if (adminUser.getRole() == Role.ADMIN) {
-                    boolean deleted = userController.deleteUser("testuser@mail.com", adminUser);
-                    System.out.println("Удаление пользователя: " + (deleted ? "✅ Успешно" : "❌ Ошибка (возможно, у вас нет прав)"));
-                } else {
-                    System.err.println("❌ Ошибка: Пользователь не является ADMIN.");
-                }
-            }
-
-            // 📌 Теперь проверка бронирования происходит **через меню**, а не автоматически
-            System.out.println("\n=== 🏨 Запуск системы бронирования ===");
-
-            // Запуск основного меню приложения
+            // Запуск главного меню
             HotelBookingApplication app = new HotelBookingApplication(
                     hotelController,
                     roomController,
                     bookingController,
                     userController
             );
-            app.mainMenu(); // ✅ Теперь пользователь сам выбирает, когда вводить ID бронирования
+            app.mainMenu();
 
             // Закрытие соединения
             db.close();
-            System.out.println("✅ Приложение завершено.");
         } catch (Exception e) {
-            System.err.println("❌ Ошибка во время работы приложения: " + e.getMessage());
+            System.err.println("Ошибка в работе приложения: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -108,7 +70,7 @@ public class Main {
             ResultSet rs = stmt.executeQuery();
             return rs.next() && rs.getBoolean(1);
         } catch (Exception e) {
-            System.err.println("❌ Ошибка при проверке таблицы: " + e.getMessage());
+            System.err.println("Ошибка при проверке таблицы: " + e.getMessage());
             return false;
         }
     }
@@ -120,8 +82,6 @@ public class Main {
                      "SELECT COUNT(*) FROM users WHERE email = 'admin@mail.com'")) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next() && rs.getInt(1) == 0) {
-                System.out.println("ℹ️ Администратор не найден. Создаем нового администратора...");
-
                 try (PreparedStatement insertStmt = con.prepareStatement(
                         "INSERT INTO users (name, email, age, password, role) VALUES (?, ?, ?, ?, ?)")) {
                     insertStmt.setString(1, "Admin");
@@ -130,13 +90,10 @@ public class Main {
                     insertStmt.setString(4, "adminPass");
                     insertStmt.setString(5, "ADMIN");
                     insertStmt.executeUpdate();
-                    System.out.println("✅ Администратор успешно создан!");
                 }
-            } else {
-                System.out.println("✅ Администратор уже существует.");
             }
         } catch (Exception e) {
-            System.err.println("❌ Ошибка при создании администратора: " + e.getMessage());
+            System.err.println("Ошибка при создании администратора: " + e.getMessage());
         }
     }
 
@@ -147,8 +104,6 @@ public class Main {
                      "SELECT COUNT(*) FROM users WHERE email = 'testuser@mail.com'")) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next() && rs.getInt(1) == 0) {
-                System.out.println("ℹ️ Test User не найден. Создаем тестового пользователя...");
-
                 try (PreparedStatement insertStmt = con.prepareStatement(
                         "INSERT INTO users (name, email, age, password, role) VALUES (?, ?, ?, ?, ?)")) {
                     insertStmt.setString(1, "Test User");
@@ -157,13 +112,10 @@ public class Main {
                     insertStmt.setString(4, "testPass");
                     insertStmt.setString(5, "USER");
                     insertStmt.executeUpdate();
-                    System.out.println("✅ Test User успешно создан!");
                 }
-            } else {
-                System.out.println("✅ Test User уже существует.");
             }
         } catch (Exception e) {
-            System.err.println("❌ Ошибка при создании Test User: " + e.getMessage());
+            System.err.println("Ошибка при создании Test User: " + e.getMessage());
         }
     }
 }

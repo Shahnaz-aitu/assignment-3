@@ -37,8 +37,8 @@ public class HotelBookingApplication {
             System.out.println("5. Забронировать");
             System.out.println("6. Поиск пользователя");
             System.out.println("7. Удаление пользователя");
-            System.out.println("8. Выход");
-            System.out.println("9. Просмотр бронирования"); // ✅ Добавлен новый пункт
+            System.out.println("8. Просмотр бронирования"); // ✅ Перенесено выше выхода
+            System.out.println("9. Выход"); // ✅ Теперь в самом конце
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -52,11 +52,11 @@ public class HotelBookingApplication {
                 case 5 -> bookRoom();
                 case 6 -> searchUser();
                 case 7 -> deleteUser();
-                case 8 -> {
+                case 8 -> viewBooking(); // ✅ Теперь перед выходом
+                case 9 -> {
                     System.out.println("Выход...");
                     return;
                 }
-                case 9 -> viewBooking(); // ✅ Вызов нового метода
                 default -> System.out.println("Неверный выбор, попробуйте снова.");
             }
         }
@@ -185,3 +185,4 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
+
