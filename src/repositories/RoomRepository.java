@@ -22,13 +22,15 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms";
+        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, COALESCE(category, 'STANDARD') AS category, price, is_available FROM rooms";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 String roomType = rs.getString("room_type");
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+                String category = rs.getString("category");
+
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
 
                 rooms.add(new Room(
                         rs.getInt("id"),
@@ -36,7 +38,7 @@ public class RoomRepository implements IRoomRepository {
                         roomType,
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
-                        null
+                        RoomCategory.valueOf(category.toUpperCase())
                 ));
             }
         } catch (Exception e) {
@@ -49,22 +51,29 @@ public class RoomRepository implements IRoomRepository {
     @Override
     public List<Room> getRoomsByHotelId(int hotelId) {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms WHERE hotel_id = ?";
+        String sql = "SELECT r.id, r.hotel_id, COALESCE(r.room_type, 'Unknown') AS room_type, " +
+                "r.price, r.is_available, COALESCE(rc.category, 'Unknown') AS category " +
+                "FROM rooms r " +
+                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +  // ✅ Добавляем JOIN
+                "WHERE r.hotel_id = ?";
+
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, hotelId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String roomType = rs.getString("room_type");
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+                String roomType = rs.getString("room_type"); // ✅ Загружаем тип номера
+                String category = rs.getString("category");
+
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
 
                 rooms.add(new Room(
                         rs.getInt("id"),
                         rs.getInt("hotel_id"),
-                        roomType,
+                        roomType, // ✅ Теперь передаем корректный тип
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
-                        null
+                        RoomCategory.valueOf(category.toUpperCase())
                 ));
             }
         } catch (Exception e) {
@@ -73,6 +82,8 @@ public class RoomRepository implements IRoomRepository {
         }
         return rooms;
     }
+
+
 
     @Override
     public boolean isRoomAvailable(int roomId, Date checkIn, Date checkOut) {
@@ -99,14 +110,21 @@ public class RoomRepository implements IRoomRepository {
 
     @Override
     public Room getRoomById(int id) {
-        String sql = "SELECT id, hotel_id, COALESCE(room_type, 'Unknown') AS room_type, price, is_available FROM rooms WHERE id = ?";
+        String sql = "SELECT r.id, r.hotel_id, COALESCE(r.room_type, 'Unknown') AS room_type, " +
+                "r.price, r.is_available, COALESCE(rc.category, 'Unknown') AS category " +
+                "FROM rooms r " +
+                "LEFT JOIN room_categories rc ON r.category_id = rc.id " +  // ✅ Добавлен LEFT JOIN
+                "WHERE r.id = ?";
+
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 String roomType = rs.getString("room_type");
-                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType);
+                String category = rs.getString("category"); // ✅ Теперь правильно загружается категория
+
+                System.out.println("🔍 Загружен номер ID: " + rs.getInt("id") + " | Тип: " + roomType + " | Категория: " + category);
 
                 return new Room(
                         rs.getInt("id"),
@@ -114,7 +132,7 @@ public class RoomRepository implements IRoomRepository {
                         roomType,
                         rs.getDouble("price"),
                         rs.getBoolean("is_available"),
-                        null
+                        RoomCategory.valueOf(category.toUpperCase()) // ✅ Исправлено использование категории
                 );
             }
         } catch (Exception e) {

@@ -143,6 +143,7 @@ public class HotelBookingApplication {
         for (Room room : availableRooms) {
             System.out.println("- Номер ID: " + room.getId() +
                     " | Тип: " + (room.getType() != null ? room.getType() : "Unknown") +
+                    " | Категория: " + room.getCategory() +
                     " | Цена: " + room.getPrice() +
                     " | Доступность: " + (room.isAvailable() ? "✅" : "❌"));
         }
