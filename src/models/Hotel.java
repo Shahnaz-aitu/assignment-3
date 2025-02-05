@@ -3,50 +3,39 @@ package models;
 public class Hotel {
     private int id;
     private String name;
-    private String address;
-    private double rating;
+    private String city;  // ✅ Добавлено поле city
+    private double rank;
+    private String location;
 
-    // Конструкторы
-    public Hotel() {}
-
-    public Hotel(int id, String name, String address, double rating) {
+    public Hotel(int id, String name, String city, double rank, String location) {
         this.id = id;
         this.name = name;
-        this.address = address;
-        this.rating = rating;
+        this.city = city;  // ✅ Добавлено city
+        this.rank = rank;
+        this.location = location;
     }
 
-    public Hotel(int i, String hotelName, String s, int i1, String s1) {
-    }
-
-    // Геттеры и сеттеры
-   public int getId() {
+    public int getId() {
         return id;
-   }
-   public void setId(int id) {
-        this.id = id;
-   }
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getCity() {  // ✅ Теперь этот метод точно есть!
+        return city;
     }
 
-    public String getAddress() {
-        return address;
+    public double getRank() {
+        return rank;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public String getLocation() {
+        return location;
     }
 
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
+    public void setCity(String city) {
+        this.city = city;
     }
 }

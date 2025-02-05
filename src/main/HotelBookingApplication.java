@@ -45,7 +45,7 @@ public class HotelBookingApplication {
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> manageHotels();
+                case 1 -> hotelController.showAllHotels();
                 case 2 -> registerUser();
                 case 3 -> loginUser();
                 case 4 -> manageBookings();

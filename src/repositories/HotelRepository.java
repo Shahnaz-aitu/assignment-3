@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelRepository implements IHotelRepository { // ✅ Удалил abstract
+public class HotelRepository implements IHotelRepository {
     private final IDB db;
 
     public HotelRepository(IDB db) {
@@ -17,11 +17,12 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     @Override
     public boolean createHotel(Hotel hotel) {
-        String sql = "INSERT INTO Hotels (name, address, rating) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO hotels (name, city, rank, location) VALUES (?, ?, ?, ?)";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, hotel.getName());
-            stmt.setString(2, hotel.getAddress());
-            stmt.setDouble(3, hotel.getRating());
+            stmt.setString(2, hotel.getCity());
+            stmt.setDouble(3, hotel.getRank());
+            stmt.setString(4, hotel.getLocation());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -31,16 +32,17 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     @Override
     public Hotel getHotelById(int id) {
-        String sql = "SELECT * FROM Hotels WHERE hotel_id = ?";
+        String sql = "SELECT * FROM hotels WHERE id = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Hotel(
-                        rs.getInt("hotel_id"),
+                        rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("address"),
-                        rs.getDouble("rating")
+                        rs.getString("city"),
+                        rs.getDouble("rank"),
+                        rs.getString("location")
                 );
             }
         } catch (SQLException e) {
@@ -51,16 +53,17 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     @Override
     public List<Hotel> getAllHotels() {
-        String sql = "SELECT * FROM Hotels";
+        String sql = "SELECT * FROM hotels";
         List<Hotel> hotels = new ArrayList<>();
-        try (Connection con = db.getConnection(); Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 hotels.add(new Hotel(
-                        rs.getInt("hotel_id"),
+                        rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("address"),
-                        rs.getDouble("rating")
+                        rs.getString("city"),
+                        rs.getDouble("rank"),
+                        rs.getString("location")
                 ));
             }
         } catch (SQLException e) {
@@ -70,20 +73,19 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
     }
 
     @Override
-    public List<Hotel> getHotelsByCity(String city) { // ✅ Исправление
+    public List<Hotel> getHotelsByCity(String city) {
         List<Hotel> hotels = new ArrayList<>();
-        String sql = "SELECT * FROM Hotels WHERE address LIKE ?";
-
+        String sql = "SELECT * FROM hotels WHERE city ILIKE ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, "%" + city + "%");
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
                 hotels.add(new Hotel(
-                        rs.getInt("hotel_id"),
+                        rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("address"),
-                        rs.getDouble("rating")
+                        rs.getString("city"),
+                        rs.getDouble("rank"),
+                        rs.getString("location")
                 ));
             }
         } catch (SQLException e) {
@@ -94,12 +96,13 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     @Override
     public boolean updateHotel(Hotel hotel) {
-        String sql = "UPDATE Hotels SET name = ?, address = ?, rating = ? WHERE hotel_id = ?";
+        String sql = "UPDATE hotels SET name = ?, city = ?, rank = ?, location = ? WHERE id = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, hotel.getName());
-            stmt.setString(2, hotel.getAddress());
-            stmt.setDouble(3, hotel.getRating());
-            stmt.setInt(4, hotel.getId());
+            stmt.setString(2, hotel.getCity());
+            stmt.setDouble(3, hotel.getRank());
+            stmt.setString(4, hotel.getLocation());
+            stmt.setInt(5, hotel.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -109,7 +112,7 @@ public class HotelRepository implements IHotelRepository { // ✅ Удалил a
 
     @Override
     public boolean deleteHotel(int id) {
-        String sql = "DELETE FROM Hotels WHERE hotel_id = ?";
+        String sql = "DELETE FROM hotels WHERE id = ?";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
