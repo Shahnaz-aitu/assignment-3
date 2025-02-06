@@ -9,4 +9,7 @@ public interface ICategoryRepository {
     List<Category> getAllCategories();
     boolean updateCategory(int id, String newName);
     boolean deleteCategory(int id);
+
+    // Новый метод поиска категории по названию
+    Category getCategoryByName(String name);
 }

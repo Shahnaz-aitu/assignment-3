@@ -4,8 +4,10 @@ import controllers.interfaces.IBookingController;
 import controllers.interfaces.IHotelController;
 import controllers.interfaces.IRoomController;
 import controllers.interfaces.IUserController;
+import controllers.CategoryController;
 import models.Room;
 import models.User;
+import models.Category;
 import strategies.*;
 
 import java.util.List;
@@ -17,17 +19,20 @@ public class HotelBookingApplication {
     private final IRoomController roomController;
     private final IBookingController bookingController;
     private final IUserController userController;
+    private final CategoryController categoryController;
     private User currentUser = null;
 
     public HotelBookingApplication(
             IHotelController hotelController,
             IRoomController roomController,
             IBookingController bookingController,
-            IUserController userController) {
+            IUserController userController,
+            CategoryController categoryController) {
         this.hotelController = hotelController;
         this.roomController = roomController;
         this.bookingController = bookingController;
         this.userController = userController;
+        this.categoryController = categoryController;
     }
 
     public void mainMenu() {
@@ -41,7 +46,8 @@ public class HotelBookingApplication {
             System.out.println("6. Поиск пользователя");
             System.out.println("7. Удаление пользователя");
             System.out.println("8. Просмотр бронирования");
-            System.out.println("9. Выход");
+            System.out.println("9. Найти категорию");
+            System.out.println("10. Выход");
             System.out.print("Выберите действие: ");
 
             if (!scanner.hasNextInt()) {
@@ -62,12 +68,39 @@ public class HotelBookingApplication {
                 case 6 -> searchUser();
                 case 7 -> deleteUser();
                 case 8 -> viewBooking();
-                case 9 -> {
+                case 9 -> searchCategory();
+                case 10 -> {
                     System.out.println("Выход...");
                     return;
                 }
                 default -> System.out.println("❌ Ошибка: неверный выбор, попробуйте снова.");
             }
+        }
+    }
+
+    private void searchUser() {
+        System.out.print("Введите email или имя пользователя для поиска: ");
+        String query = scanner.nextLine();
+
+        User foundUser = userController.searchUser(query);
+
+        if (foundUser != null) {
+            System.out.println("✅ Найден пользователь: " + foundUser.getName() + " (Email: " + foundUser.getEmail() + ")");
+        } else {
+            System.out.println("❌ Пользователь не найден.");
+        }
+    }
+
+    private void searchCategory() {
+        System.out.print("Введите название категории: ");
+        String categoryName = scanner.nextLine();
+
+        Category foundCategory = categoryController.getCategoryByName(categoryName);
+
+        if (foundCategory != null) {
+            System.out.println("✅ Найдена категория: " + foundCategory.getName());
+        } else {
+            System.out.println("❌ Категория не найдена.");
         }
     }
 
@@ -101,7 +134,7 @@ public class HotelBookingApplication {
         System.out.print("Введите ваш пароль: ");
         String password = scanner.nextLine();
 
-        User user = userController.getUserByEmail(email, currentUser); // Исправленный вызов метода
+        User user = userController.getUserByEmail(email, currentUser);
         if (user != null && user.getPassword().equals(password)) {
             System.out.println("✅ Добро пожаловать, " + user.getName() + "!");
             currentUser = user;
@@ -170,16 +203,6 @@ public class HotelBookingApplication {
         System.out.println(success ? "✅ Бронирование успешно!" : "❌ Не удалось выполнить бронирование.");
     }
 
-    private void searchUser() {
-        System.out.print("Введите email или имя пользователя для поиска: ");
-        String query = scanner.nextLine();
-        User foundUser = userController.searchUser(query);
-
-        System.out.println(foundUser != null
-                ? "✅ Найден пользователь: " + foundUser.getName()
-                : "❌ Пользователь не найден.");
-    }
-
     private void deleteUser() {
         if (currentUser == null || !"ADMIN".equalsIgnoreCase(currentUser.getRole().toString())) {
             System.out.println("❌ Только администратор может удалять пользователей.");
@@ -213,3 +236,5 @@ public class HotelBookingApplication {
         bookingController.showFullBookingDescription(bookingId);
     }
 }
+
+

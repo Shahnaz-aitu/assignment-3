@@ -25,4 +25,9 @@ public class RepositoryFactory {
     public IBookingRepository createBookingRepository() {
         return new BookingRepository(db);
     }
+
+    // ✅ Новый метод для создания CategoryRepository
+    public ICategoryRepository createCategoryRepository() {
+        return new CategoryRepository(db);
+    }
 }

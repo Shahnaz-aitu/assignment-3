@@ -31,4 +31,15 @@ public class CategoryController {
     public boolean deleteCategory(int id) {
         return categoryRepository.deleteCategory(id);
     }
+
+    // ✅ Новый метод для поиска категории по названию
+    public Category getCategoryByName(String name) {
+        Category category = categoryRepository.getCategoryByName(name);
+        if (category == null) {
+            System.out.println("❌ Категория '" + name + "' не найдена.");
+        } else {
+            System.out.println("✅ Найдена категория: " + category.getName());
+        }
+        return category;
+    }
 }
