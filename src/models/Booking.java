@@ -2,8 +2,7 @@ package models;
 
 import java.util.Date;
 
-public class Booking {
-    private int id;    // добавлено поле id
+public class Booking extends AbstractEntity {
     private int userId;
     private int roomId;
     private Date checkIn;
@@ -11,7 +10,7 @@ public class Booking {
 
     // Конструктор с id (например, при получении из БД)
     public Booking(int id, int userId, int roomId, Date checkIn, Date checkOut) {
-        this.id = id;
+        super(id);  // Наследуем id от AbstractEntity
         this.userId = userId;
         this.roomId = roomId;
         this.checkIn = checkIn;
@@ -20,25 +19,20 @@ public class Booking {
 
     // Конструктор без id (при создании нового бронирования)
     public Booking(int userId, int roomId, Date checkIn, Date checkOut) {
+        super(0); // id будет присвоен БД
         this.userId = userId;
         this.roomId = roomId;
         this.checkIn = checkIn;
         this.checkOut = checkOut;
     }
 
-    public int getId() {
-        return id;
-    }
-    public int getUserId() {
-        return userId;
-    }
-    public int getRoomId() {
-        return roomId;
-    }
-    public Date getCheckIn() {
-        return checkIn;
-    }
-    public Date getCheckOut() {
-        return checkOut;
-    }
+    public int getUserId() { return userId; }
+    public int getRoomId() { return roomId; }
+    public Date getCheckIn() { return checkIn; }
+    public Date getCheckOut() { return checkOut; }
+
+    public void setUserId(int userId) { this.userId = userId; }
+    public void setRoomId(int roomId) { this.roomId = roomId; }
+    public void setCheckIn(Date checkIn) { this.checkIn = checkIn; }
+    public void setCheckOut(Date checkOut) { this.checkOut = checkOut; }
 }

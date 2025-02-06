@@ -1,14 +1,13 @@
 package models;
 
-public class Category {
-    private int id;
+public class Category extends AbstractEntity {
     private String name;
 
     public Category(int id, String name) {
-        this.id = id;
+        super(id);  // Наследуем id от AbstractEntity
         this.name = name;
     }
 
-    public int getId() { return id; }
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 }

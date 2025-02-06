@@ -8,22 +8,20 @@ import data.interfaces.IDB;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Order {
-    private int orderId;
+public class Order extends AbstractEntity {
     private int userId;
     private String userName;
     private String userEmail;
     private List<OrderDetails> orderDetails;
 
-    public Order(int orderId, int userId, String userName, String userEmail, List<OrderDetails> orderDetails) {
-        this.orderId = orderId;
+    public Order(int id, int userId, String userName, String userEmail, List<OrderDetails> orderDetails) {
+        super(id);  // Наследуем id от AbstractEntity
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
         this.orderDetails = orderDetails;
     }
 
-    public int getOrderId() { return orderId; }
     public int getUserId() { return userId; }
     public String getUserName() { return userName; }
     public String getUserEmail() { return userEmail; }
@@ -32,9 +30,9 @@ public class Order {
     public static Order getFullOrderDescription(int orderId, IDB db) {
         String sql = "SELECT o.order_id, o.user_id, u.name AS user_name, u.email AS user_email, " +
                 "od.product_id, p.name AS product_name, p.price, c.name AS category_name, od.quantity " +
-                "FROM orders o " +  // исправлено на нижний регистр
+                "FROM orders o " +
                 "JOIN users u ON o.user_id = u.id " +
-                "LEFT JOIN orderdetails od ON o.order_id = od.order_id " +  // LEFT JOIN, чтобы показать заказы без товаров
+                "LEFT JOIN orderdetails od ON o.order_id = od.order_id " +
                 "LEFT JOIN products p ON od.product_id = p.id " +
                 "LEFT JOIN categories c ON p.category_id = c.id " +
                 "WHERE o.order_id = ?";
