@@ -34,12 +34,14 @@ public class Main {
             IRoomRepository roomRepo = factory.createRoomRepository();
             IBookingRepository bookingRepo = factory.createBookingRepository();
             IUserRepository userRepo = factory.createUserRepository();
+            ICategoryRepository categoryRepo = factory.createCategoryRepository(); // ✅ Добавлено
 
             // ✅ Используем созданные репозитории для контроллеров
             IHotelController hotelController = new HotelController(hotelRepo, roomRepo);
             IRoomController roomController = new RoomController(roomRepo);
             IBookingController bookingController = new BookingController(bookingRepo, userRepo, roomRepo, hotelRepo);
             IUserController userController = new UserController(userRepo);
+            CategoryController categoryController = new CategoryController(categoryRepo); // ✅ Добавлено
 
             // Проверяем и создаем администратора и тестового пользователя (если нужно)
             ensureAdminExists(userRepo);
@@ -50,7 +52,8 @@ public class Main {
                     hotelController,
                     roomController,
                     bookingController,
-                    userController
+                    userController,
+                    categoryController // ✅ Теперь передаем CategoryController
             );
             app.mainMenu();
 

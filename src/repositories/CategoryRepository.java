@@ -36,10 +36,10 @@ public class CategoryRepository implements ICategoryRepository {
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return new Category(rs.getInt("id"), rs.getString("name"));
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
@@ -51,10 +51,10 @@ public class CategoryRepository implements ICategoryRepository {
         String sql = "SELECT id, name FROM categories";
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 categories.add(new Category(rs.getInt("id"), rs.getString("name")));
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return categories;
@@ -67,7 +67,7 @@ public class CategoryRepository implements ICategoryRepository {
             stmt.setString(1, newName);
             stmt.setInt(2, id);
             return stmt.executeUpdate() > 0;
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
@@ -79,9 +79,39 @@ public class CategoryRepository implements ICategoryRepository {
         try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // ✅ Исправленный метод для поиска категории по названию (без учета регистра)
+    @Override
+    public Category getCategoryByName(String name) {
+        String sql = """
+        SELECT c.id, c.name, COUNT(r.id) AS total_rooms 
+        FROM categories c
+        LEFT JOIN rooms r ON c.id = r.category_id 
+        WHERE LOWER(c.name) = LOWER(?) 
+        GROUP BY c.id, c.name
+        LIMIT 1;
+    """;
+
+        try (Connection con = db.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int categoryId = rs.getInt("id");
+                String categoryName = rs.getString("name");
+                int totalRooms = rs.getInt("total_rooms");
+
+                System.out.println("✅ Найдена категория: " + categoryName + " | Количество номеров: " + totalRooms);
+                return new Category(categoryId, categoryName);
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Ошибка при поиске категории: " + e.getMessage());
+        }
+        return null;
     }
 }
