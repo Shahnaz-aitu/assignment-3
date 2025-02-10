@@ -1,6 +1,9 @@
 package models;
 
-public class Room extends AbstractEntity {
+import models.interfaces.IBookable;
+import java.util.Date;
+
+public class Room extends AbstractEntity implements IBookable {
     private int hotelId;
     private String roomType; // Изменено с "type" на "roomType"
     private double price;
@@ -14,6 +17,11 @@ public class Room extends AbstractEntity {
         this.price = price;
         this.isAvailable = isAvailable;
         this.category = category;
+    }
+
+    @Override
+    public boolean isAvailable(Date checkIn, Date checkOut) {
+        return isAvailable; // Простая проверка доступности номера
     }
 
     public int getHotelId() { return hotelId; }
@@ -37,3 +45,4 @@ public class Room extends AbstractEntity {
         }
     }
 }
+

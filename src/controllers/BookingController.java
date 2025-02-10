@@ -55,7 +55,7 @@ public class BookingController implements IBookingController {
             return false;
         }
 
-        System.out.println("✅ Номер доступен: " + room.getType() + " | Цена: " + room.getPrice());
+        System.out.println("✅ Номер доступен: " + room.getRoomType() + " | Цена: " + room.getPrice());
 
         // ✅ Создаем бронирование
         Booking booking = new Booking(user.getId(), roomId, checkIn, checkOut);
@@ -86,7 +86,7 @@ public class BookingController implements IBookingController {
 
         System.out.println("📌 Ваши бронирования:");
         for (BookingDetails booking : bookings) {
-            System.out.println("- Номер " + booking.getRoom().getType() + " в " +
+            System.out.println("- Номер " + booking.getRoom().getRoomType() + " в " +
                     booking.getHotel().getName() + " с " +
                     booking.getBooking().getCheckIn() + " по " + booking.getBooking().getCheckOut());
         }
@@ -103,8 +103,9 @@ public class BookingController implements IBookingController {
         System.out.println("📌 Полная информация о бронировании:");
         System.out.println("- ID бронирования: " + details.getBooking().getId());
         System.out.println("- Гость: " + (details.getUser() != null ? details.getUser().getName() + " (Email: " + details.getUser().getEmail() + ")" : "Unknown"));
-        System.out.println("- Номер: " + (details.getRoom() != null ? details.getRoom().getType() : "Unknown") + ", Цена: " + (details.getRoom() != null ? details.getRoom().getPrice() : "0"));
+        System.out.println("- Номер: " + (details.getRoom() != null ? details.getRoom().getRoomType() : "Unknown") + ", Цена: " + (details.getRoom() != null ? details.getRoom().getPrice() : "0"));
         System.out.println("- Отель: " + (details.getHotel() != null ? details.getHotel().getName() : "Unknown"));
         System.out.println("- Даты: с " + details.getBooking().getCheckIn() + " по " + details.getBooking().getCheckOut());
     }
 }
+

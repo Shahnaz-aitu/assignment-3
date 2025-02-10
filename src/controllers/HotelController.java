@@ -61,7 +61,7 @@ public class HotelController implements IHotelController {
 
         System.out.println("\n=== 🏨 Доступные номера в отеле ===");
         for (Room room : rooms) {
-            System.out.println("- Номер ID: " + room.getId() + " | Тип: " + room.getType() +
+            System.out.println("- Номер ID: " + room.getId() + " | Тип: " + room.getRoomType() + // ✅ Исправлено
                     " | Цена: " + room.getPrice() + " | Доступность: " + (room.isAvailable() ? "✅ Доступен" : "❌ Занят"));
         }
     }

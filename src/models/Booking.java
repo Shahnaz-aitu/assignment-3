@@ -1,8 +1,9 @@
 package models;
 
+import models.interfaces.IBookable;
 import java.util.Date;
 
-public class Booking extends AbstractEntity {
+public class Booking extends AbstractEntity implements IBookable {
     private int userId;
     private int roomId;
     private Date checkIn;
@@ -24,6 +25,11 @@ public class Booking extends AbstractEntity {
         this.roomId = roomId;
         this.checkIn = checkIn;
         this.checkOut = checkOut;
+    }
+
+    @Override
+    public boolean isAvailable(Date checkIn, Date checkOut) {
+        return !(this.checkIn.before(checkOut) && this.checkOut.after(checkIn));
     }
 
     public int getUserId() { return userId; }

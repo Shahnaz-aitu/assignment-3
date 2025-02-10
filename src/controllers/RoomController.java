@@ -29,7 +29,7 @@ public class RoomController implements IRoomController {
         } else {
             System.out.println("Доступные номера:");
             for (Room room : rooms) {
-                System.out.println("- Номер " + room.getType() + " (Категория: " + room.getCategory() +
+                System.out.println("- Номер " + room.getRoomType() + " (Категория: " + room.getCategory() +
                         ", Цена: " + room.getPrice() + ")");
             }
         }

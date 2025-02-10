@@ -176,11 +176,14 @@ public class HotelBookingApplication {
         System.out.println("\n=== Доступные номера ===");
         availableRooms.forEach(room ->
                 System.out.println("- Номер ID: " + room.getId() +
-                        " | Тип: " + room.getType() +
+                        " | Тип: " + room.getRoomType() +  // // ✅ Исправлено
                         " | Категория: " + room.getCategory() +
                         " | Цена: " + room.getPrice() +
-                        " | Доступность: " + (room.isAvailable() ? "✅" : "❌"))
-        );
+                        " | Доступность: " + (room.isAvailable() ? "✅" : "❌")
+                )      );
+
+
+
 
         System.out.print("Введите ID номера для бронирования: ");
         while (!scanner.hasNextInt()) {

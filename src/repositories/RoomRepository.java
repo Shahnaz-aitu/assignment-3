@@ -33,9 +33,9 @@ public class RoomRepository implements IRoomRepository {
                 rooms.add(mapRoom(rs));
             }
 
-            // ✅ Используем forEach() для красивого вывода в консоль
+            // ✅ Исправлено: заменил getType() на getRoomType()
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                    " | Тип: " + room.getType() + " | Категория: " + room.getCategory()));
+                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
 
             return rooms;
         } catch (Exception e) {
@@ -63,9 +63,9 @@ public class RoomRepository implements IRoomRepository {
                 rooms.add(mapRoom(rs));
             }
 
-            // ✅ Используем forEach() для вывода
+            // ✅ Исправлено: заменил getType() на getRoomType()
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                    " | Тип: " + room.getType() + " | Категория: " + room.getCategory()));
+                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
 
             return rooms;
         } catch (Exception e) {
@@ -109,8 +109,9 @@ public class RoomRepository implements IRoomRepository {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Room room = mapRoom(rs);
+                // ✅ Исправлено: заменил getType() на getRoomType()
                 System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                        " | Тип: " + room.getType() + " | Категория: " + room.getCategory());
+                        " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory());
                 return room;
             }
         } catch (Exception e) {
@@ -134,3 +135,4 @@ public class RoomRepository implements IRoomRepository {
         );
     }
 }
+

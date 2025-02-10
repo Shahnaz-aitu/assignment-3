@@ -38,7 +38,7 @@ public class BookingDetails {
                 user.getName(),
                 user.getEmail(),
                 hotel.getName(),
-                room.getType(),
+                room.getRoomType(),  // ✅ Исправлено с getType() на getRoomType()
                 room.getCategory(),
                 booking.getCheckIn(),
                 booking.getCheckOut()
