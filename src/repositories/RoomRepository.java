@@ -1,7 +1,6 @@
 package repositories;
 
-import models.Room;
-import models.RoomCategory;
+import models.*;
 import repositories.interfaces.IRoomRepository;
 import data.interfaces.IDB;
 
@@ -33,7 +32,6 @@ public class RoomRepository implements IRoomRepository {
                 rooms.add(mapRoom(rs));
             }
 
-            // ✅ Исправлено: заменил getType() на getRoomType()
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
                     " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
 
@@ -63,7 +61,6 @@ public class RoomRepository implements IRoomRepository {
                 rooms.add(mapRoom(rs));
             }
 
-            // ✅ Исправлено: заменил getType() на getRoomType()
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
                     " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
 
@@ -109,7 +106,6 @@ public class RoomRepository implements IRoomRepository {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Room room = mapRoom(rs);
-                // ✅ Исправлено: заменил getType() на getRoomType()
                 System.out.println("🔍 Загружен номер ID: " + room.getId() +
                         " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory());
                 return room;
@@ -125,14 +121,18 @@ public class RoomRepository implements IRoomRepository {
      * ✅ **Метод для маппинга данных из ResultSet в объект Room**
      */
     private Room mapRoom(ResultSet rs) throws Exception {
-        return new Room(
-                rs.getInt("id"),
-                rs.getInt("hotel_id"),
-                rs.getString("room_type"),
-                rs.getDouble("price"),
-                rs.getBoolean("is_available"),
-                RoomCategory.valueOf(rs.getString("category").toUpperCase())
-        );
+        String roomType = rs.getString("room_type");
+        double price = rs.getDouble("price");
+        boolean isAvailable = rs.getBoolean("is_available");
+        RoomCategory category = RoomCategory.valueOf(rs.getString("category").toUpperCase());
+
+        // ✅ Определяем правильный класс комнаты
+        if ("Deluxe".equalsIgnoreCase(roomType)) {
+            return new DeluxeRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+        } else if ("Suite".equalsIgnoreCase(roomType)) {
+            return new SuiteRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+        } else {
+            return new StandardRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+        }
     }
 }
-

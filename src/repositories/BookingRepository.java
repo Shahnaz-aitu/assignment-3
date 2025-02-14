@@ -75,11 +75,21 @@ public class BookingRepository implements IBookingRepository {
                         rs.getDate("check_in_date"),
                         rs.getDate("check_out_date")
                 );
+
+                String roomType = rs.getString("room_type");
+                Room room;
+                if ("Deluxe".equalsIgnoreCase(roomType)) {
+                    room = new DeluxeRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+                } else if ("Suite".equalsIgnoreCase(roomType)) {
+                    room = new SuiteRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+                } else {
+                    room = new StandardRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+                }
+
                 BookingDetails details = new BookingDetails(
                         booking,
                         null,
-                        new Room(rs.getInt("room_id"), 0, rs.getString("room_type"),
-                                rs.getDouble("room_price"), true, null),
+                        room,
                         new Hotel(0, rs.getString("hotel_name"), "", 0, "")
                 );
                 bookings.add(details);
@@ -133,7 +143,6 @@ public class BookingRepository implements IBookingRepository {
                     age = 18;
                 }
 
-                // ✅ Используем роль, чтобы создать правильный тип пользователя
                 String role = rs.getString("user_role");
                 if ("ADMIN".equalsIgnoreCase(role)) {
                     user = new AdminUser(
@@ -154,9 +163,15 @@ public class BookingRepository implements IBookingRepository {
                 }
             }
 
-            Room room = (rs.getInt("room_id") != 0) ?
-                    new Room(rs.getInt("room_id"), 0, rs.getString("room_type"), rs.getDouble("room_price"), true, null)
-                    : null;
+            String roomType = rs.getString("room_type");
+            Room room;
+            if ("Deluxe".equalsIgnoreCase(roomType)) {
+                room = new DeluxeRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+            } else if ("Suite".equalsIgnoreCase(roomType)) {
+                room = new SuiteRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+            } else {
+                room = new StandardRoom(rs.getInt("room_id"), 0, rs.getDouble("room_price"), true, null);
+            }
 
             Hotel hotel = (rs.getInt("hotel_id") != 0) ?
                     new Hotel(rs.getInt("hotel_id"), rs.getString("hotel_name"), "", 0, "")
@@ -170,9 +185,6 @@ public class BookingRepository implements IBookingRepository {
         return null;
     }
 
-    /**
-     * Проверяет, доступен ли номер на указанные даты.
-     */
     public boolean isRoomAvailable(int roomId, java.sql.Date checkIn, java.sql.Date checkOut) {
         String sql = "SELECT COUNT(*) FROM bookings WHERE room_id = ? " +
                 "AND ((check_in_date BETWEEN ? AND ?) OR (check_out_date BETWEEN ? AND ?))";
@@ -185,7 +197,7 @@ public class BookingRepository implements IBookingRepository {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) == 0; // Если 0, значит номер доступен
+                return rs.getInt(1) == 0;
             }
         } catch (SQLException e) {
             e.printStackTrace();
