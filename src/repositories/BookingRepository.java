@@ -62,7 +62,7 @@ public class BookingRepository implements IBookingRepository {
     public List<BookingDetails> getUserBookings(int userId) {
         List<BookingDetails> bookings = new ArrayList<>();
         String sql = "SELECT b.id, b.room_id, b.check_in_date, b.check_out_date, " +
-                "COALESCE(r.type, 'Unknown') AS room_type, COALESCE(r.price, 0) AS room_price, " +
+                "COALESCE(r.room_type, 'Unknown') AS room_type, COALESCE(r.price, 0) AS room_price, " +
                 "COALESCE(h.name, 'Unknown') AS hotel_name " +
                 "FROM bookings b " +
                 "LEFT JOIN rooms r ON b.room_id = r.id " +
@@ -100,7 +100,7 @@ public class BookingRepository implements IBookingRepository {
         String sql = "SELECT b.id AS booking_id, b.check_in_date, b.check_out_date, " +
                 "b.status, u.id AS user_id, u.name AS user_name, u.email AS user_email, " +
                 "COALESCE(u.age, 18) AS user_age, " +
-                "COALESCE(r.id, 0) AS room_id, COALESCE(r.type, 'Unknown') AS room_type, COALESCE(r.price, 0) AS room_price, " +
+                "COALESCE(r.id, 0) AS room_id, COALESCE(r.room_type, 'Unknown') AS room_type, COALESCE(r.price, 0) AS room_price, " +
                 "COALESCE(h.id, 0) AS hotel_id, COALESCE(h.name, 'Unknown') AS hotel_name " +
                 "FROM bookings b " +
                 "LEFT JOIN users u ON b.user_id = u.id " +
