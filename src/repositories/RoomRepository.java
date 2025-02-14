@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RoomRepository implements IRoomRepository {
     private final IDB db;
@@ -33,7 +32,8 @@ public class RoomRepository implements IRoomRepository {
             }
 
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
+                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory() +
+                    " | Цена: " + room.getPrice()));
 
             return rooms;
         } catch (Exception e) {
@@ -62,7 +62,8 @@ public class RoomRepository implements IRoomRepository {
             }
 
             rooms.forEach(room -> System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory()));
+                    " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory() +
+                    " | Цена: " + room.getPrice()));
 
             return rooms;
         } catch (Exception e) {
@@ -107,7 +108,8 @@ public class RoomRepository implements IRoomRepository {
             if (rs.next()) {
                 Room room = mapRoom(rs);
                 System.out.println("🔍 Загружен номер ID: " + room.getId() +
-                        " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory());
+                        " | Тип: " + room.getRoomType() + " | Категория: " + room.getCategory() +
+                        " | Цена: " + room.getPrice());
                 return room;
             }
         } catch (Exception e) {
@@ -126,13 +128,20 @@ public class RoomRepository implements IRoomRepository {
         boolean isAvailable = rs.getBoolean("is_available");
         RoomCategory category = RoomCategory.valueOf(rs.getString("category").toUpperCase());
 
-        // ✅ Определяем правильный класс комнаты
+        System.out.println("🔎 Создаем номер: " + roomType + " | Категория: " + category + " | Цена до обработки: " + price);
+
+        // ✅ Определяем правильный класс номера
+        Room room;
         if ("Deluxe".equalsIgnoreCase(roomType)) {
-            return new DeluxeRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+            room = new DeluxeRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
         } else if ("Suite".equalsIgnoreCase(roomType)) {
-            return new SuiteRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+            room = new SuiteRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
         } else {
-            return new StandardRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
+            room = new StandardRoom(rs.getInt("id"), rs.getInt("hotel_id"), price, isAvailable, category);
         }
+
+        System.out.println("✅ Создан номер: " + room.getRoomType() + " | ID: " + room.getId() + " | Цена после обработки: " + room.getPrice());
+
+        return room;
     }
 }
