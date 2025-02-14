@@ -1,11 +1,7 @@
 package repositories;
 
 import data.interfaces.IDB;
-import models.Booking;
-import models.BookingDetails;
-import models.Hotel;
-import models.Room;
-import models.User;
+import models.*;
 import repositories.interfaces.IBookingRepository;
 
 import java.sql.Connection;
@@ -99,7 +95,7 @@ public class BookingRepository implements IBookingRepository {
 
         String sql = "SELECT b.id AS booking_id, b.check_in_date, b.check_out_date, " +
                 "b.status, u.id AS user_id, u.name AS user_name, u.email AS user_email, " +
-                "COALESCE(u.age, 18) AS user_age, " +
+                "COALESCE(u.age, 18) AS user_age, u.role AS user_role, " +
                 "COALESCE(r.id, 0) AS room_id, COALESCE(r.room_type, 'Unknown') AS room_type, COALESCE(r.price, 0) AS room_price, " +
                 "COALESCE(h.id, 0) AS hotel_id, COALESCE(h.name, 'Unknown') AS hotel_name " +
                 "FROM bookings b " +
@@ -136,12 +132,26 @@ public class BookingRepository implements IBookingRepository {
                     System.out.println("⚠️ Возраст пользователя меньше 18, устанавливаем 18.");
                     age = 18;
                 }
-                user = new User(
-                        rs.getInt("user_id"),
-                        rs.getString("user_name"),
-                        rs.getString("user_email"),
-                        age
-                );
+
+                // ✅ Используем роль, чтобы создать правильный тип пользователя
+                String role = rs.getString("user_role");
+                if ("ADMIN".equalsIgnoreCase(role)) {
+                    user = new AdminUser(
+                            rs.getInt("user_id"),
+                            rs.getString("user_name"),
+                            rs.getString("user_email"),
+                            age,
+                            null
+                    );
+                } else {
+                    user = new RegularUser(
+                            rs.getInt("user_id"),
+                            rs.getString("user_name"),
+                            rs.getString("user_email"),
+                            age,
+                            null
+                    );
+                }
             }
 
             Room room = (rs.getInt("room_id") != 0) ?

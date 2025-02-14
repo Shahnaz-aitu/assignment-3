@@ -5,6 +5,7 @@ public class UserBuilder {
     private String email;
     private int age;
     private String password;
+    private boolean isAdmin = false; // Добавляем флаг для админа
 
     public UserBuilder setName(String name) {
         this.name = name;
@@ -26,7 +27,14 @@ public class UserBuilder {
         return this;
     }
 
+    public UserBuilder setAdmin(boolean isAdmin) { // Указываем, админ ли это
+        this.isAdmin = isAdmin;
+        return this;
+    }
+
     public User build() {
-        return new User(name, email, age, password);
+        return isAdmin
+                ? new AdminUser(0, name, email, age, password)  // Если админ
+                : new RegularUser(0, name, email, age, password);  // Если обычный юзер
     }
 }

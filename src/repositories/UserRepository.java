@@ -1,8 +1,7 @@
 package repositories;
 
 import data.interfaces.IDB;
-import models.Role;
-import models.User;
+import models.*;
 import repositories.interfaces.IRepository;
 import repositories.interfaces.IUserRepository;
 
@@ -63,21 +62,18 @@ public class UserRepository implements IUserRepository, IRepository<User> {
         return users;
     }
 
-    // ✅ Метод для поиска пользователей по роли
     public List<User> getUsersByRole(Role role) {
         return getAll().stream()
                 .filter(user -> user.getRole() == role)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Метод для сортировки пользователей по возрасту
     public List<User> getUsersSortedByAge() {
         return getAll().stream()
                 .sorted((u1, u2) -> Integer.compare(u1.getAge(), u2.getAge()))
                 .collect(Collectors.toList());
     }
 
-    // ✅ Метод для поиска пользователей по имени
     public List<User> searchUsersByName(String query) {
         return getAll().stream()
                 .filter(user -> user.getName().toLowerCase().contains(query.toLowerCase()))
@@ -115,7 +111,12 @@ public class UserRepository implements IUserRepository, IRepository<User> {
             System.err.println("❌ Ошибка: возраст должен быть больше 18 лет.");
             return null;
         }
-        User newUser = new User(name, email, age, password);
+
+        // ✅ Используем админа или обычного пользователя
+        User newUser = Role.USER == Role.ADMIN
+                ? new AdminUser(0, name, email, age, password)
+                : new RegularUser(0, name, email, age, password);
+
         if (add(newUser)) {
             return newUser;
         }
@@ -135,13 +136,11 @@ public class UserRepository implements IUserRepository, IRepository<User> {
         return null;
     }
 
-    // ✅ Добавлен пропущенный метод getById (обязательный для IRepository<T>)
     @Override
     public User getById(int id) {
         return getUserById(id);
     }
 
-    // ✅ Добавлен пропущенный метод
     @Override
     public User searchUser(String query) {
         return getAll().stream()
@@ -157,13 +156,23 @@ public class UserRepository implements IUserRepository, IRepository<User> {
     }
 
     private User mapUser(ResultSet rs) throws Exception {
-        return new User(
+        Role role = Role.valueOf(rs.getString("role").toUpperCase());
+
+        // ✅ Проверяем роль пользователя и создаем нужный объект
+        return role == Role.ADMIN
+                ? new AdminUser(
                 rs.getInt("id"),
                 rs.getString("name"),
                 rs.getString("email"),
                 rs.getInt("age"),
-                rs.getString("password"),
-                Role.valueOf(rs.getString("role").toUpperCase())
+                rs.getString("password")
+        )
+                : new RegularUser(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getInt("age"),
+                rs.getString("password")
         );
     }
 }
